@@ -1,15 +1,39 @@
 package com.golash.app.ui.screens.home
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.golash.app.R
 import com.golash.app.data.repository.FakeProductRepository
-import com.golash.app.ui.components.ProductCard
-
+import com.golash.app.ui.components.RotatingProductCard
+import com.golash.app.ui.theme.CormorantGaramondItalic
+import com.golash.app.ui.theme.DarkGray
+import com.golash.app.ui.theme.Linen
+import com.golash.app.ui.theme.Oak
+import com.golash.app.ui.theme.RawCotton
 
 @Preview
 @Composable
@@ -20,13 +44,42 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreen(onProductClick: (String) -> Unit = {}) {
     val repository = FakeProductRepository()
-    val products = repository.getProducts()
+    val products = repository.getProducts() //.take(4) optionally
+    val scrollState = rememberScrollState()
 
-    LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
-        items(products) { product ->
-            ProductCard(product = product, onClick = {
-                onProductClick(product.id)
-            })
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Linen).verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+
+        Image(
+            painter = painterResource(id = R.drawable.golash_naked_logo),
+            modifier = Modifier
+                .size(164.dp)
+                .padding(24.dp),
+            contentDescription = ""
+        )
+
+
+        Text(
+            text = "Beri bosiljak pred zalazak, tada je najmirisniji.",
+            fontFamily = CormorantGaramondItalic,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = DarkGray,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        RotatingProductCard(
+            products = products,
+            onProductClick = {},
+            modifier = Modifier.wrapContentSize()
+        )
     }
 }
+
+

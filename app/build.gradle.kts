@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.golash"
+    namespace = "com.golash.app"
     compileSdk = 35
 
     defaultConfig {
@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose.android)
+    implementation(libs.androidx.navigation.safe.args.generator)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -61,4 +62,11 @@ dependencies {
     implementation(libs.coil.kt.compose)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.compose.ui)
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.material:material-icons-extended:1.4.0")
+}
+
+configurations.all {
+    exclude(group = "xmlpull", module = "xmlpull")
+    exclude(group = "xpp3", module = "xpp3")
 }
