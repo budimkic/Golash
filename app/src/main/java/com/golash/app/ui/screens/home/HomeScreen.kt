@@ -6,20 +6,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,6 +37,7 @@ import com.golash.app.data.repository.FakeProductRepository
 import com.golash.app.ui.components.RotatingProductCard
 import com.golash.app.ui.theme.CormorantGaramondItalic
 import com.golash.app.ui.theme.DarkGray
+import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Oak
 import com.golash.app.ui.theme.RawCotton
@@ -50,28 +57,24 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Linen).verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(Linen)
+            .verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-
         Image(
-            painter = painterResource(id = R.drawable.golash_naked_logo),
-            modifier = Modifier
-                .size(164.dp)
-                .padding(24.dp),
+            painter = painterResource(id = R.drawable.clean),
+            modifier = Modifier.padding(top = 16.dp),
             contentDescription = ""
         )
-
 
         Text(
             text = "Beri bosiljak pred zalazak, tada je najmirisniji.",
             fontFamily = CormorantGaramondItalic,
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
-            color = DarkGray,
+            color = DeepBark,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 24.dp)
+            modifier = Modifier.padding(top = 24.dp, bottom = 24.dp)
         )
 
         RotatingProductCard(

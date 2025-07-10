@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,12 +25,18 @@ import coil.compose.AsyncImage
 import com.golash.app.R
 
 import com.golash.app.data.model.Product
+import com.golash.app.ui.theme.CormorantGaramond
+import com.golash.app.ui.theme.CormorantGaramondItalic
+import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DarkGray
+import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.DeepOlive
+import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Marcellus
 import com.golash.app.ui.theme.Oak
 import com.golash.app.ui.theme.RawCotton
+import com.golash.app.ui.theme.WarmSand
 import kotlinx.coroutines.delay
 
 
@@ -54,24 +61,23 @@ fun RotatingProductCard(
     Card(
         modifier = modifier
             .wrapContentSize()
-            .padding(16.dp),
+            .padding(12.dp),
         colors = CardDefaults.cardColors(containerColor = RawCotton),
-        elevation = CardDefaults.cardElevation(defaultElevation = 14.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 40.dp),
+        shape = RoundedCornerShape(24.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(14.dp)
                 .wrapContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
 
-
-
             Card(
-                shape = RoundedCornerShape(25.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                modifier = Modifier.size(220.dp)
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+               // elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                modifier = Modifier.size(290.dp)//.border(2.dp, Oak, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
             ) {
                 AsyncImage(
                     model = products[currentIndex].imageUrl,
@@ -82,25 +88,26 @@ fun RotatingProductCard(
 
 
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "${products[currentIndex].name}",
                 fontFamily = Marcellus,
-                fontSize = 16.sp,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Center,
-                color = DarkGray
+                color = EarthBrown
 
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${products[currentIndex].price} RSD",
-                fontFamily = Marcellus,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-                color = DarkGray
+            //  Spacer(modifier = Modifier.height(4.dp))
+            /*    Text(
+                    text = "${products[currentIndex].price} RSD",
+                    fontFamily = Marcellus,
+                    fontSize = 15.sp,
+                    textAlign = TextAlign.Center,
+                    color = Linen
 
-            )
+                )*/
         }
     }
 }

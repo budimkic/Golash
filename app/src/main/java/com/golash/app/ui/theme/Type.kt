@@ -9,10 +9,7 @@ import androidx.compose.ui.unit.sp
 import com.golash.app.R
 
 
-val Marcellus = FontFamily(
-    Font(R.font.marcellus_regular, FontWeight.Normal)
-)
-
+val Marcellus = FontFamily(Font(R.font.marcellus_regular, FontWeight.Normal))
 val CormorantGaramond = FontFamily(Font(R.font.cormorant_garamond, FontWeight.Normal))
 val CormorantGaramondItalic = FontFamily(Font(R.font.cormorant_garamond_italic, FontWeight.Normal))
 
