@@ -62,8 +62,8 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.clean),
-            modifier = Modifier.padding(top = 16.dp),
+            painter = painterResource(id = R.drawable.logo_golash),
+            modifier = Modifier.padding(top = 10.dp).size(90.dp),
             contentDescription = ""
         )
 
@@ -74,7 +74,7 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
             fontWeight = FontWeight.SemiBold,
             color = DeepBark,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 24.dp, bottom = 24.dp)
+            modifier = Modifier.padding(top = 24.dp, bottom = 64.dp)
         )
 
         RotatingProductCard(

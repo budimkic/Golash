@@ -62,7 +62,7 @@ fun RotatingProductCard(
         modifier = modifier
             .wrapContentSize()
             .padding(12.dp),
-        colors = CardDefaults.cardColors(containerColor = RawCotton),
+        colors = CardDefaults.cardColors(containerColor = WarmSand),
         elevation = CardDefaults.cardElevation(defaultElevation = 40.dp),
         shape = RoundedCornerShape(24.dp)
     ) {
@@ -77,7 +77,7 @@ fun RotatingProductCard(
             Card(
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
                // elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                modifier = Modifier.size(290.dp)//.border(2.dp, Oak, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
+                modifier = Modifier.size(290.dp)//.border(3.dp, DeepOlive, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
             ) {
                 AsyncImage(
                     model = products[currentIndex].imageUrl,
