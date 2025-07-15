@@ -43,10 +43,10 @@ import androidx.compose.ui.draw.shadow
 fun RotatingProductCard(
     products: List<Product>,
     onProductClick: (String) -> Unit,
-    intervalMilis: Long = 7500L,
+    intervalMilis: Long = 5000L,
+    fadeInEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-
     var visible by remember { mutableStateOf(false) }
 
     if (products.isEmpty()) return
@@ -55,13 +55,10 @@ fun RotatingProductCard(
 
     LaunchedEffect(Unit) {
         visible = true
-
         while (true) {
             delay(intervalMilis)
             currentIndex = (currentIndex + 1) % products.size
         }
-
-
     }
 
     val product = products[currentIndex]
@@ -69,10 +66,9 @@ fun RotatingProductCard(
     Card(
         modifier = modifier
             .wrapContentSize()
-            .padding(12.dp).shadow(8.dp, RoundedCornerShape(24.dp))
-        ,
+            .padding(12.dp)
+            .shadow(8.dp, RoundedCornerShape(24.dp)),
         colors = CardDefaults.cardColors(containerColor = WarmSand),
-        //elevation = CardDefaults.cardElevation(defaultElevation = 24.dp),
         shape = RoundedCornerShape(24.dp)
     ) {
         Column(
@@ -81,96 +77,55 @@ fun RotatingProductCard(
                 .wrapContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             AnimatedVisibility(
                 visible = visible,
-                enter = fadeIn(animationSpec = tween(durationMillis = 3000))
+                enter = if (fadeInEnabled) fadeIn(tween(3000)) else fadeIn(tween(0))
             ) {
                 AnimatedContent(
                     targetState = product,
                     transitionSpec = {
                         (slideInHorizontally(
                             initialOffsetX = { it },
-                            animationSpec = tween(
-                                durationMillis = 800,
-                                easing = FastOutSlowInEasing
-                            )
-                        ) + fadeIn(
-                            animationSpec = tween(
-                                durationMillis = 800,
-                                easing = FastOutSlowInEasing
-                            )
-                        )) togetherWith
-
+                            animationSpec = tween(800, easing = FastOutSlowInEasing)
+                        ) + fadeIn(tween(800, easing = FastOutSlowInEasing))) togetherWith
                                 (slideOutHorizontally(
                                     targetOffsetX = { -it },
-                                    animationSpec = tween(
-                                        durationMillis = 800,
-                                        easing = FastOutSlowInEasing
-                                    )
-                                ) + fadeOut(
-                                    animationSpec = tween(
-                                        durationMillis = 800,
-                                        easing = FastOutSlowInEasing
-                                    )
-                                ))
+                                    animationSpec = tween(800, easing = FastOutSlowInEasing)
+                                ) + fadeOut(tween(800, easing = FastOutSlowInEasing)))
                     }
-                )
-                { animatedProduct ->
+                ) { animatedProduct ->
                     Card(
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                        // elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                        modifier = Modifier.size(290.dp)//.border(3.dp, DeepOlive, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
+                        modifier = Modifier.size(290.dp)
                     ) {
                         AsyncImage(
                             model = animatedProduct.imageUrl,
-                            contentDescription = "My image",
+                            contentDescription = "Product image",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
             }
 
-
             Spacer(modifier = Modifier.height(8.dp))
 
             AnimatedVisibility(
                 visible = visible,
-                enter = fadeIn(animationSpec = tween(durationMillis = 3000))
+                enter = if (fadeInEnabled) fadeIn(tween(3000)) else fadeIn(tween(0))
             ) {
                 AnimatedContent(
                     targetState = product.name,
                     transitionSpec = {
                         (slideInHorizontally(
                             initialOffsetX = { it },
-                            animationSpec = tween(
-                                durationMillis = 800,
-                                easing = FastOutSlowInEasing
-                            )
-                        ) + fadeIn(
-                            animationSpec = tween(
-                                durationMillis = 800,
-                                easing = FastOutSlowInEasing
-                            )
-                        )) togetherWith
-
+                            animationSpec = tween(800, easing = FastOutSlowInEasing)
+                        ) + fadeIn(tween(800, easing = FastOutSlowInEasing))) togetherWith
                                 (slideOutHorizontally(
                                     targetOffsetX = { -it },
-                                    animationSpec = tween(
-                                        durationMillis = 800,
-                                        easing = FastOutSlowInEasing
-                                    )
-                                ) + fadeOut(
-                                    animationSpec = tween(
-                                        durationMillis = 800,
-                                        easing = FastOutSlowInEasing
-                                    )
-                                ))
+                                    animationSpec = tween(800, easing = FastOutSlowInEasing)
+                                ) + fadeOut(tween(800, easing = FastOutSlowInEasing)))
                     }
-                )
-
-                { animatedName ->
-
+                ) { animatedName ->
                     Text(
                         text = animatedName,
                         fontFamily = Marcellus,
@@ -178,23 +133,10 @@ fun RotatingProductCard(
                         fontWeight = FontWeight.Normal,
                         textAlign = TextAlign.Center,
                         color = EarthBrown
-
                     )
                 }
             }
-
         }
-
-
-        //  Spacer(modifier = Modifier.height(4.dp))
-        /*    Text(
-                text = "${products[currentIndex].price} RSD",
-                fontFamily = Marcellus,
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                color = Linen
-
-            )*/
     }
 }
 

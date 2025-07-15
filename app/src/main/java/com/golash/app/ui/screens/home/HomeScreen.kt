@@ -2,6 +2,7 @@ package com.golash.app.ui.screens.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
@@ -65,11 +66,12 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
 
     var hasShownAnimation by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(hasShownAnimation) {
+    LaunchedEffect(Unit) {
         if (!hasShownAnimation) {
             showText = true
-            delay(2000) // sačekaj da se tekst završi
+            delay(2000)
             showCard = true
+            delay(500)
             hasShownAnimation = true
         } else {
             showText = true
@@ -84,10 +86,9 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         AnimatedVisibility(
             visible = showText,
-            enter = fadeIn(animationSpec = tween(durationMillis = 3300))
+            enter = if (!hasShownAnimation) fadeIn(animationSpec = tween(3300)) else fadeIn(tween(0))
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logo_golash),
@@ -100,9 +101,8 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
 
         AnimatedVisibility(
             visible = showText,
-            enter = fadeIn(animationSpec = tween(durationMillis = 3300))
+            enter = if (!hasShownAnimation) fadeIn(animationSpec = tween(3300)) else fadeIn(tween(0))
         ) {
-
             Text(
                 text = "Beri bosiljak pred zalazak, tada je najmirisniji.",
                 fontFamily = CormorantGaramondItalic,
@@ -117,11 +117,12 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
 
         AnimatedVisibility(
             visible = showCard,
-            enter = fadeIn(animationSpec = tween(durationMillis = 1000))
+            enter = if (!hasShownAnimation) fadeIn(animationSpec = tween(3300)) else fadeIn(tween(0))
         ) {
             RotatingProductCard(
                 products = products,
                 onProductClick = onProductClick,
+                fadeInEnabled = showCard && !hasShownAnimation,
                 modifier = Modifier.wrapContentSize()
             )
         }
