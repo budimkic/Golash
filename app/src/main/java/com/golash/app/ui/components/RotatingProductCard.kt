@@ -14,6 +14,7 @@ import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -67,7 +68,8 @@ fun RotatingProductCard(
         modifier = modifier
             .wrapContentSize()
             .padding(12.dp)
-            .shadow(8.dp, RoundedCornerShape(24.dp)),
+            .shadow(8.dp, RoundedCornerShape(24.dp))
+            .clickable { onProductClick(product.id) },
         colors = CardDefaults.cardColors(containerColor = WarmSand),
         shape = RoundedCornerShape(24.dp)
     ) {

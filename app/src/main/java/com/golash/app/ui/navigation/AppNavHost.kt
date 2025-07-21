@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.golash.app.ui.screens.cart.CartScreen
+import com.golash.app.ui.screens.detail.DetailScreen
 import com.golash.app.ui.screens.gallery.GalleryScreen
 import com.golash.app.ui.screens.home.HomeScreen
 
@@ -18,7 +19,7 @@ fun AppNavHost(navController: NavHostController, startDestination: Destination, 
         modifier = modifier
     ) {
         composable(Destination.HOME.route) {
-            HomeScreen()
+            HomeScreen(navController)
         }
         composable(
             Destination.GALLERY.route
@@ -28,7 +29,8 @@ fun AppNavHost(navController: NavHostController, startDestination: Destination, 
         composable(Destination.CART.route) {
             CartScreen()
         }
-
-
+        composable(Destination.PRODUCT_DETAIL.route) {
+            DetailScreen()
+        }
     }
 }

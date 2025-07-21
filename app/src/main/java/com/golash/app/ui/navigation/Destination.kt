@@ -6,13 +6,31 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
-enum class Destination(
-    val route: String,
-    val icon: ImageVector,
-    val contentDescription: String,
-    val label: String
+sealed class Destination(
+    open val route: String,
+    open val icon: ImageVector? = null,
+    open val contentDescription: String? = null,
+    open val label: String? = null
 ) {
-    HOME("home", Icons.Filled.Home, "Go to Home Screen", "Home"),
-    GALLERY("gallery", Icons.Filled.GridView, "Visit the Gallery", "Gallery"),
-    CART("cart", Icons.Filled.ShoppingCart, "Check your Cart", "Cart")
+    data object HOME : Destination(
+        "home", Icons.Filled.Home, "Go to Home Screen", "Home"
+    )
+
+    data object GALLERY : Destination(
+        "gallery", Icons.Filled.GridView, "Visit the Gallery", "Gallery"
+    )
+
+    data object CART : Destination(
+        "cart", Icons.Filled.ShoppingCart, "Check your Cart", "Cart"
+    )
+
+    data object PRODUCT_DETAIL : Destination(
+        "product_detail"
+    )
+
+    companion object {
+        val bottomNavDestinations: List<Destination> = listOf(HOME, GALLERY, CART)
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package com.golash.app
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
@@ -45,17 +46,17 @@ fun GolashApp() {
 @Composable
 fun GolashMainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val startDestination = Destination.HOME
-    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
+    var selectedDestination by rememberSaveable {
+        mutableIntStateOf(0) // Prvi element u bottomNavDestinations – HOME
+    }
 
     Scaffold(
-        modifier = modifier,
-        bottomBar = {
+        modifier = modifier, bottomBar = {
             NavigationBar(
-                containerColor = WarmSand,
-                windowInsets = NavigationBarDefaults.windowInsets
+                containerColor = WarmSand, windowInsets = NavigationBarDefaults.windowInsets
             ) {
-                Destination.entries.forEachIndexed { index, destination ->
+                Destination.bottomNavDestinations.forEachIndexed { index, destination ->
+
                     NavigationBarItem(
                         selected = selectedDestination == index,
                         onClick = {
@@ -69,17 +70,15 @@ fun GolashMainScreen(modifier: Modifier = Modifier) {
                             selectedDestination = index
                         },
                         icon = {
-                            Icon(
-                                destination.icon,
-                                contentDescription = destination.contentDescription
-                            )
+                            destination.icon?.let { icon ->
+                                Icon(icon, contentDescription = destination.contentDescription)
+                            }
                         },
                         label = {
-                            Text(
-                                destination.label,
-                                fontFamily = Marcellus,
-                                fontWeight = FontWeight.Bold
-                            )
+
+                            destination.label?.let { label ->
+                                Text(label, fontFamily = Marcellus, fontWeight = FontWeight.Bold)
+                            }
                         },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = DarkChestnut,
@@ -91,9 +90,10 @@ fun GolashMainScreen(modifier: Modifier = Modifier) {
                     )
                 }
             }
-        }
-    ) { contentPadding ->
-        AppNavHost(navController, startDestination, modifier = Modifier.padding(contentPadding))
+        })
 
+
+    { contentPadding ->
+        AppNavHost(navController, Destination.HOME, modifier = Modifier.padding(contentPadding))
     }
 }

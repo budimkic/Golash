@@ -52,11 +52,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 
 
 @Composable
-fun HomeScreen(onProductClick: (String) -> Unit = {}) {
+fun HomeScreen(navController: NavController, onProductClick: (String) -> Unit = {}) {
     val repository = FakeProductRepository()
     val products = repository.getProducts()
     val scrollState = rememberScrollState()
@@ -65,6 +66,8 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
     var showCard by remember { mutableStateOf(false) }
 
     var hasShownAnimation by rememberSaveable { mutableStateOf(false) }
+
+    var selectedProductId by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         if (!hasShownAnimation) {
@@ -110,10 +113,21 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
                 fontWeight = FontWeight.SemiBold,
                 color = DeepBark,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(top = 24.dp, bottom = 64.dp)
+                modifier = Modifier.padding(top = 24.dp, bottom = 50.dp)
             )
         }
+
+        /*  AnimatedVisibility(
+              visible = showText,
+              enter = if (!hasShownAnimation) fadeIn(animationSpec = tween(3300)) else fadeIn(tween(0))
+          ) {
+              Image(
+                  painter = painterResource(id = R.drawable.oak_icon_mod),
+                  modifier = Modifier.size(60.dp),
+                  contentDescription = ""
+              )
+          }*/
+
 
         AnimatedVisibility(
             visible = showCard,
@@ -121,10 +135,14 @@ fun HomeScreen(onProductClick: (String) -> Unit = {}) {
         ) {
             RotatingProductCard(
                 products = products,
-                onProductClick = onProductClick,
+                onProductClick = { id ->
+                    navController.navigate("product_detail")
+                },
                 fadeInEnabled = showCard && !hasShownAnimation,
                 modifier = Modifier.wrapContentSize()
             )
         }
     }
 }
+
+
