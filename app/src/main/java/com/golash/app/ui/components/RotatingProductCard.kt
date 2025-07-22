@@ -4,22 +4,17 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,7 +39,7 @@ import androidx.compose.ui.draw.shadow
 fun RotatingProductCard(
     products: List<Product>,
     onProductClick: (String) -> Unit,
-    intervalMilis: Long = 5000L,
+    intervalMillis: Long = 5000L,
     fadeInEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -55,9 +50,12 @@ fun RotatingProductCard(
     var currentIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
+
         visible = true
+
+
         while (true) {
-            delay(intervalMilis)
+            delay(intervalMillis)
             currentIndex = (currentIndex + 1) % products.size
         }
     }

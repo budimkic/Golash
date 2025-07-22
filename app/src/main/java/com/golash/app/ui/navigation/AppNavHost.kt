@@ -19,7 +19,7 @@ fun AppNavHost(navController: NavHostController, startDestination: Destination, 
         modifier = modifier
     ) {
         composable(Destination.HOME.route) {
-            HomeScreen(navController)
+            HomeScreen(navController = navController)
         }
         composable(
             Destination.GALLERY.route
