@@ -152,6 +152,7 @@ private fun HomeContent(
         }
 
 
+
         when (uiState) {
             is HomeUiState.Loading -> {
                 ShimmerEffect(

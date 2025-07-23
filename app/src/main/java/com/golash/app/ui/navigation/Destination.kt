@@ -10,7 +10,8 @@ sealed class Destination(
     open val route: String,
     open val icon: ImageVector? = null,
     open val contentDescription: String? = null,
-    open val label: String? = null
+    open val label: String? = null,
+    open val productId: String? = null
 ) {
     data object HOME : Destination(
         "home", Icons.Filled.Home, "Go to Home Screen", "Home"
@@ -25,7 +26,7 @@ sealed class Destination(
     )
 
     data object PRODUCT_DETAIL : Destination(
-        "product_detail"
+        "product_detail/{productId}", productId = "productId"
     )
 
     companion object {

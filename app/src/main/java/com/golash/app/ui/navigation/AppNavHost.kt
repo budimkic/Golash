@@ -29,7 +29,8 @@ fun AppNavHost(navController: NavHostController, startDestination: Destination, 
         composable(Destination.CART.route) {
             CartScreen()
         }
-        composable(Destination.PRODUCT_DETAIL.route) {
+        composable(Destination.PRODUCT_DETAIL.route) { backStackEntry ->
+
             DetailScreen()
         }
     }
