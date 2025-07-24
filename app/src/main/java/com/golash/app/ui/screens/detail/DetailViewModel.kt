@@ -1,5 +1,6 @@
 package com.golash.app.ui.screens.detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.golash.app.data.model.Product
@@ -17,28 +18,40 @@ sealed class DetailUiState {
 }
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(private val productRepository: ProductRepository) :
+class DetailViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val productRepository: ProductRepository
+) :
     ViewModel() {
 
     private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     var uiState: StateFlow<DetailUiState> = _uiState
 
+    private val productId = savedStateHandle.get<String>("productId")
+
     init {
-        loadProduct()
+        refresh()
     }
 
-    private fun loadProduct() {
+    private fun loadProduct(productId: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = DetailUiState.Loading
-                 //Get the product using the ID passed from the navigation
-                 val product = productRepository.getProductById()
-                _uiState.value = DetailUiState.Success(product)
-            } catch(e: Exception) {
+                //Get the product using the ID passed from the navigation
+                productRepository.getProductById(productId)?.let { product ->
+                    _uiState.value = DetailUiState.Success(product)
+                } ?: run {
+                    _uiState.value = DetailUiState.Error("Product not found")
+                }
 
+            } catch (e: Exception) {
+                _uiState.value = DetailUiState.Error(e.message ?: "Unknown error occurred")
             }
-
         }
+    }
+
+    private fun refresh() {
+        productId?.let { loadProduct(it) }
     }
 
 }

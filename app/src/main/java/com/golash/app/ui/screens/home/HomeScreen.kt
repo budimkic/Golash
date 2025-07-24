@@ -57,7 +57,6 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-
     LaunchedEffect(uiState) {
         if (uiState is HomeUiState.Error) {
             val errorMessage = (uiState as HomeUiState.Error).message
@@ -67,7 +66,6 @@ fun HomeScreen(
                         viewModel.refresh()
                     }
                 }
-
         }
     }
 
@@ -150,8 +148,6 @@ private fun HomeContent(
                 modifier = Modifier.padding(top = 24.dp, bottom = 50.dp)
             )
         }
-
-
 
         when (uiState) {
             is HomeUiState.Loading -> {

@@ -49,17 +49,15 @@ fun RotatingProductCard(
 
     var currentIndex by remember { mutableIntStateOf(0) }
 
+    // Every [intervalMillis], increment the index to show the next product
+    // The % operator ensures we loop back to 0 when we reach the end of the list
     LaunchedEffect(Unit) {
-
         visible = true
-
-
         while (true) {
             delay(intervalMillis)
             currentIndex = (currentIndex + 1) % products.size
         }
     }
-
     val product = products[currentIndex]
 
     Card(

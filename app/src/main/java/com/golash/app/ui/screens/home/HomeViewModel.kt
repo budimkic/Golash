@@ -30,7 +30,6 @@ class HomeViewModel @Inject constructor(
         loadProducts()
     }
 
-
     private fun loadProducts() {
         viewModelScope.launch {
             try {
