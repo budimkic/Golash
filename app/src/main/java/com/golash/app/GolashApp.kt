@@ -75,7 +75,6 @@ fun GolashMainScreen(modifier: Modifier = Modifier) {
                             }
                         },
                         label = {
-
                             destination.label?.let { label ->
                                 Text(label, fontFamily = Marcellus, fontWeight = FontWeight.Bold)
                             }

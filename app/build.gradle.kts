@@ -91,9 +91,9 @@ dependencies {
     // Additional Compose dependencies
     implementation(libs.androidx.compose.foundation)
     implementation(libs.compose.ui)
-    implementation("androidx.compose.material3:material3:1.2.1")
-    implementation("androidx.compose.material:material-icons-extended:1.4.0")
-    
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+
     // Core Library Desugaring for Java 8+ APIs on older Android versions
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

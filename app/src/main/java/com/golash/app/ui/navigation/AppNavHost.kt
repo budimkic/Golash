@@ -15,7 +15,11 @@ import com.golash.app.ui.screens.gallery.GalleryScreen
 import com.golash.app.ui.screens.home.HomeScreen
 
 @Composable
-fun AppNavHost(navController: NavHostController, startDestination: Destination, modifier: Modifier = Modifier) {
+fun AppNavHost(
+    navController: NavHostController,
+    startDestination: Destination,
+    modifier: Modifier = Modifier
+) {
 
     NavHost(
         navController = navController,
@@ -40,11 +44,7 @@ fun AppNavHost(navController: NavHostController, startDestination: Destination, 
                 nullable = false
 
             })
-        ) { backStackEntry ->
-           /* val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
-            // Now you can use productId to fetch the product
-            val viewModel: DetailViewModel = hiltViewModel()
-            viewModel.setProductId(productId)*/
+        ) {
             DetailScreen()
         }
     }
