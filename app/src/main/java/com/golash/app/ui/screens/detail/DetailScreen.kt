@@ -3,6 +3,7 @@ package com.golash.app.ui.screens.detail
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.util.Log
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -79,6 +80,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import kotlin.math.PI
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.draw.scale
+import kotlinx.coroutines.launch
 
 private const val MIN_ALPHA = 0.5f
 private const val MAX_ALPHA = 1f
@@ -105,6 +108,14 @@ fun DetailContent(product: Product) {
     val pagerState = rememberPagerState(pageCount = { product.imageUrls.size })
     var isPressed by remember { mutableStateOf(false) }
     var longPressHandled by remember { mutableStateOf(false) }
+    val textAlpha by animateFloatAsState(
+        targetValue = if (isPressed && longPressHandled) 1f else 0f,
+        animationSpec = tween(durationMillis = 500),
+        label = "textAlpha"
+    )
+
+    val scope = rememberCoroutineScope()
+    val pulseScale = remember { androidx.compose.animation.core.Animatable(1f) }
 
     Box(
         modifier = Modifier
@@ -232,11 +243,6 @@ fun DetailContent(product: Product) {
 
             Box(modifier = Modifier.size(90.dp)) {
 
-                val textAlpha by animateFloatAsState(
-                    targetValue = if (isPressed && longPressHandled) 1f else 0f,
-                    animationSpec = tween(durationMillis = 500),
-                    label = "textAlpha"
-                )
 
                 if (textAlpha > 0f) {
                     CurvedText(
@@ -250,6 +256,7 @@ fun DetailContent(product: Product) {
                 Box(
                     modifier = Modifier
                         .size(50.dp)
+                        .scale(pulseScale.value)
                         .align(Alignment.Center)
                         .background(color = DarkChestnut, shape = CircleShape)
                         .pointerInput(Unit) {
@@ -261,6 +268,12 @@ fun DetailContent(product: Product) {
                                     isPressed = false
 
                                     if (pressResult && !longPressHandled) {
+
+                                        scope.launch {
+                                            pulseScale.animateTo(1.15f, animationSpec = tween(100))
+                                            pulseScale.animateTo(1f, animationSpec = tween(300))
+                                        }
+
                                         //viewModel.addToCart(product)
                                     }
                                 },
