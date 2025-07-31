@@ -2,13 +2,8 @@ package com.golash.app.ui.screens.detail
 
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.util.Log
-import androidx.compose.animation.Animatable
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -20,40 +15,47 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
@@ -65,23 +67,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.golash.app.data.model.Product
+import com.golash.app.ui.screens.cart.AddToCartResult
+import com.golash.app.ui.screens.cart.CartViewModel
 import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.Inter
 import com.golash.app.ui.theme.Ivory
 import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Marcellus
-import kotlin.math.absoluteValue
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.asAndroidPath
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import kotlin.math.PI
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.draw.scale
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.absoluteValue
 
 private const val MIN_ALPHA = 0.5f
 private const val MAX_ALPHA = 1f
@@ -89,22 +85,48 @@ private const val PAGER_ASPECT_RATIO = 1f
 
 
 @Composable
-fun DetailScreen(viewModel: DetailViewModel = hiltViewModel()) {
-    //val uiState = viewModel.uiState.value
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+fun DetailScreen(
+    detailViewModel: DetailViewModel = hiltViewModel(),
+    cartViewModel: CartViewModel = hiltViewModel()
+) {
+    val detailUiState by detailViewModel.uiState.collectAsStateWithLifecycle()
+    val addToCartResult by cartViewModel.addToCartResult.collectAsState(initial = null)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    when (val state = uiState) {
-        is DetailUiState.Success -> {
-            DetailContent(product = state.product)
+    LaunchedEffect(addToCartResult) {
+        addToCartResult?.let { result ->
+
+            when (result) {
+                is AddToCartResult.Success -> {
+                    scope.launch { snackbarHostState.showSnackbar("Added to cart! :)") }
+                }
+
+                is AddToCartResult.Error -> {
+                    scope.launch { snackbarHostState.showSnackbar("Whoops, try again!") }
+                }
+
+                else -> {}
+            }
         }
+    }
 
-        is DetailUiState.Loading -> {}
-        is DetailUiState.Error -> {}
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { paddingValues ->
+        when (val state = detailUiState) {
+            is DetailUiState.Success ->
+                DetailContent(
+                    modifier = Modifier.padding(paddingValues),
+                    product = state.product,
+                    onAddToCart = { product: Product -> cartViewModel.addToCart(product) })
+
+            is DetailUiState.Loading -> {}
+            is DetailUiState.Error -> {}
+        }
     }
 }
 
 @Composable
-fun DetailContent(product: Product) {
+fun DetailContent(modifier: Modifier = Modifier, product: Product, onAddToCart: (Product) -> Unit) {
     val pagerState = rememberPagerState(pageCount = { product.imageUrls.size })
     var isPressed by remember { mutableStateOf(false) }
     var longPressHandled by remember { mutableStateOf(false) }
@@ -118,7 +140,7 @@ fun DetailContent(product: Product) {
     val pulseScale = remember { androidx.compose.animation.core.Animatable(1f) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Linen)
     ) {
@@ -239,11 +261,7 @@ fun DetailContent(product: Product) {
                 )
             }
 
-
-
             Box(modifier = Modifier.size(90.dp)) {
-
-
                 if (textAlpha > 0f) {
                     CurvedText(
                         text = "ADD TO CART",
@@ -269,12 +287,13 @@ fun DetailContent(product: Product) {
 
                                     if (pressResult && !longPressHandled) {
 
+                                        //TODO Green halo for success?
                                         scope.launch {
                                             pulseScale.animateTo(1.15f, animationSpec = tween(100))
                                             pulseScale.animateTo(1f, animationSpec = tween(300))
                                         }
 
-                                        //viewModel.addToCart(product)
+                                        onAddToCart(product)
                                     }
                                 },
                                 onLongPress = {
@@ -431,3 +450,4 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
         )
     }
 }
+

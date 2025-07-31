@@ -21,8 +21,7 @@ sealed class DetailUiState {
 class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val productRepository: ProductRepository
-) :
-    ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     var uiState: StateFlow<DetailUiState> = _uiState
