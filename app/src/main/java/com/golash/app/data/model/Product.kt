@@ -5,6 +5,7 @@ data class Product(
     val name: String,
     val description: String,
     val price: Double,
-    val imageUrl: String,
-    val imageUrls: List<String> = listOf(imageUrl)
-)
+    val imageUrls: List<String>
+) {
+    val imageUrl: String get() = imageUrls.firstOrNull() ?: ""
+}
