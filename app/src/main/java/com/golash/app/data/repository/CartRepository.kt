@@ -1,13 +1,9 @@
 package com.golash.app.data.repository
 
-import com.golash.app.data.model.Product
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.golash.app.data.model.Cart
 
-@Singleton
-class CartRepository @Inject constructor() {
-
-
-
-   suspend fun getCartProducts(): List<Product> =
+interface CartRepository{
+    suspend fun saveCart(cart: Cart)
+    suspend fun loadCart(): Cart
+    suspend fun clearCart()
 }

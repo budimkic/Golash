@@ -3,8 +3,7 @@ package com.golash.app.ui.screens.cart
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.golash.app.data.model.Product
-import com.golash.app.data.repository.CartRepository
-import com.golash.app.data.repository.ProductRepository
+import com.golash.app.data.repository.InMemoryCartRepository
 import com.golash.app.manager.CartManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,7 +26,7 @@ sealed class AddToCartResult {
 }
 
 @HiltViewModel
-class CartViewModel @Inject constructor(private val cartRepository: CartRepository, private val cartManager: CartManager) : ViewModel() {
+class CartViewModel @Inject constructor(private val cartRepository: InMemoryCartRepository, private val cartManager: CartManager) : ViewModel() {
 
     private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
     val cartState: StateFlow<CartState> = _cartState
@@ -38,7 +37,6 @@ class CartViewModel @Inject constructor(private val cartRepository: CartReposito
     init {
         loadCart()
     }
-
 
     fun addToCart(product: Product) {
         viewModelScope.launch {
