@@ -2,8 +2,10 @@ package com.golash.app.ui.screens.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.golash.app.data.model.Cart
 import com.golash.app.data.model.Product
-import com.golash.app.data.repository.InMemoryCartRepository
+import com.golash.app.data.repository.cart.CartRepository
+import com.golash.app.data.repository.cart.InMemoryCartRepository
 import com.golash.app.manager.CartManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +17,7 @@ import javax.inject.Inject
 
 sealed class CartState {
     data object Loading : CartState()
-    data class Success(val products: List<Product>) : CartState()
+    data class Success(val cart: Cart) : CartState()
     data class Error(val message: String) : CartState()
 }
 
@@ -26,7 +28,7 @@ sealed class AddToCartResult {
 }
 
 @HiltViewModel
-class CartViewModel @Inject constructor(private val cartRepository: InMemoryCartRepository, private val cartManager: CartManager) : ViewModel() {
+class CartViewModel @Inject constructor(private val cartRepository: CartRepository, private val cartManager: CartManager) : ViewModel() {
 
     private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
     val cartState: StateFlow<CartState> = _cartState
@@ -53,12 +55,12 @@ class CartViewModel @Inject constructor(private val cartRepository: InMemoryCart
         }
     }
 
-    private fun loadCart() {
+     private fun loadCart() {
         viewModelScope.launch {
             _cartState.value = CartState.Loading
             try {
-                val products = cartRepository.getCartProducts()
-                _cartState.value = CartState.Success(products)
+                val cart = cartRepository.loadCart()
+                _cartState.value = CartState.Success(cart)
             } catch (e: Exception) {
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
