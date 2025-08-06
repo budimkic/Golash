@@ -28,7 +28,9 @@ sealed class AddToCartResult {
 }
 
 @HiltViewModel
-class CartViewModel @Inject constructor(private val cartRepository: CartRepository, private val cartManager: CartManager) : ViewModel() {
+class CartViewModel @Inject constructor(
+    private val cartManager: CartManager
+) : ViewModel() {
 
     private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
     val cartState: StateFlow<CartState> = _cartState
@@ -44,7 +46,7 @@ class CartViewModel @Inject constructor(private val cartRepository: CartReposito
         viewModelScope.launch {
             _addToCartResult.emit(AddToCartResult.Loading)
             try {
-                cartManager.addProductToCart(product)
+                cartManager.addItem(product)
                 _addToCartResult.emit(AddToCartResult.Success)
                 loadCart()
 
@@ -55,15 +57,19 @@ class CartViewModel @Inject constructor(private val cartRepository: CartReposito
         }
     }
 
-     private fun loadCart() {
+    private fun loadCart() {
         viewModelScope.launch {
             _cartState.value = CartState.Loading
             try {
-                val cart = cartRepository.loadCart()
+                val cart = cartManager.loadCart()
                 _cartState.value = CartState.Success(cart)
             } catch (e: Exception) {
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
         }
+    }
+
+    fun clearCart() {
+        viewModelScope.launch { cartManager.clearCart() }
     }
 }

@@ -13,5 +13,4 @@ data class Cart(
 
     val totalItems: Int
         get() = items.sumOf { it.quantity }
-
 }

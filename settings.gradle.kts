@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Golash"
 include(":app")
- 
