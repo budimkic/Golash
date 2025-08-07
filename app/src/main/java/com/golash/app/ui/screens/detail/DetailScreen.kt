@@ -2,11 +2,15 @@ package com.golash.app.ui.screens.detail
 
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.view.ViewConfiguration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,12 +73,15 @@ import coil.compose.AsyncImage
 import com.golash.app.data.model.Product
 import com.golash.app.ui.screens.cart.AddToCartResult
 import com.golash.app.ui.screens.cart.CartViewModel
+import com.golash.app.ui.theme.CrimsonText
 import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.Inter
 import com.golash.app.ui.theme.Ivory
 import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Marcellus
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.absoluteValue
@@ -126,12 +133,11 @@ fun DetailScreen(
 }
 
 @Composable
-fun DetailContent(modifier: Modifier = Modifier, product: Product, onAddToCart: (Product) -> Unit) {
+private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAddToCart: (Product) -> Unit) {
     val pagerState = rememberPagerState(pageCount = { product.imageUrls.size })
-    var isPressed by remember { mutableStateOf(false) }
-    var longPressHandled by remember { mutableStateOf(false) }
+    var showCurvedText by remember {mutableStateOf(false)}
     val textAlpha by animateFloatAsState(
-        targetValue = if (isPressed && longPressHandled) 1f else 0f,
+        targetValue = if (showCurvedText) 1f else 0f,
         animationSpec = tween(durationMillis = 500),
         label = "textAlpha"
     )
@@ -225,9 +231,9 @@ fun DetailContent(modifier: Modifier = Modifier, product: Product, onAddToCart: 
                     text = product.description,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Normal,
                     color = DeepBark,
-                    fontFamily = Inter,
+                    fontFamily = CrimsonText,
                     lineHeight = 24.sp,
                     textAlign = TextAlign.Center,
                     letterSpacing = 0.1.sp
@@ -271,6 +277,7 @@ fun DetailContent(modifier: Modifier = Modifier, product: Product, onAddToCart: 
                     )
                 }
 
+
                 Box(
                     modifier = Modifier
                         .size(50.dp)
@@ -278,28 +285,41 @@ fun DetailContent(modifier: Modifier = Modifier, product: Product, onAddToCart: 
                         .align(Alignment.Center)
                         .background(color = DarkChestnut, shape = CircleShape)
                         .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = {
-                                    isPressed = true
-                                    longPressHandled = false
-                                    val pressResult = tryAwaitRelease()
-                                    isPressed = false
+                            awaitEachGesture {
+                                val down = awaitFirstDown()
+                                var longPressJob: Job? = null
+                                var longPressed = false
 
-                                    if (pressResult && !longPressHandled) {
+                                // Start pulse on press
+                                scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
 
-                                        //TODO Green halo for success?
-                                        scope.launch {
-                                            pulseScale.animateTo(1.15f, animationSpec = tween(100))
-                                            pulseScale.animateTo(1f, animationSpec = tween(300))
-                                        }
-
-                                        onAddToCart(product)
-                                    }
-                                },
-                                onLongPress = {
-                                    longPressHandled = true
+                                longPressJob = scope.launch {
+                                    delay(ViewConfiguration.getLongPressTimeout().toLong())
+                                    longPressed = true
+                                    showCurvedText = true
                                 }
-                            )
+
+                                val up = waitForUpOrCancellation()
+                                longPressJob.cancel()
+
+                                if (up == null) {
+                                    // Gesture was cancelled, animate back
+                                    scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                    showCurvedText = false
+                                    return@awaitEachGesture
+                                }
+
+                                if (!longPressed) {
+                                    // TAP: quick pulse, add to cart
+                                    scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                    onAddToCart(product)
+                                    showCurvedText = false
+                                } else {
+                                    // LONG PRESS: animate back, keep text visible until release
+                                    scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                    showCurvedText = false
+                                }
+                            }
                         },
                     contentAlignment = Alignment.Center
                 ) {

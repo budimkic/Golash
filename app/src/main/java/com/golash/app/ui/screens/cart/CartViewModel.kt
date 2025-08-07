@@ -31,7 +31,7 @@ sealed class AddToCartResult {
 class CartViewModel @Inject constructor(
     private val cartManager: CartManager
 ) : ViewModel() {
-
+ 
     private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
     val cartState: StateFlow<CartState> = _cartState
 
@@ -67,6 +67,10 @@ class CartViewModel @Inject constructor(
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
         }
+    }
+
+     fun refresh(){
+        loadCart()
     }
 
     fun clearCart() {

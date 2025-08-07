@@ -8,5 +8,6 @@ data class CartItemEntity(
     @PrimaryKey val productId: String,
     val name: String,
     val price: Double,
-    val productDescription: String
+    val productDescription: String,
+    val imageUrls: List<String>
 )

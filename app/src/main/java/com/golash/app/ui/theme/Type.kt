@@ -13,6 +13,7 @@ val Marcellus = FontFamily(Font(R.font.marcellus_regular, FontWeight.Normal))
 val CormorantGaramond = FontFamily(Font(R.font.cormorant_garamond, FontWeight.Normal))
 val CormorantGaramondItalic = FontFamily(Font(R.font.cormorant_garamond_italic, FontWeight.Normal))
 val Inter = FontFamily(Font(R.font.inter, FontWeight.Normal))
+val CrimsonText = FontFamily(Font(R.font.crimson_text_regular, FontWeight.Normal))
 
 
 // Set of Material typography styles to start with

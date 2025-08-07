@@ -5,7 +5,7 @@ import com.golash.app.data.mapper.toCartItem
 import com.golash.app.data.mapper.toEntity
 import com.golash.app.data.model.Cart
 
-class RoomCartRepository(private val db: AppDatabase) : CartRepository {
+class RoomCartRepository(db: AppDatabase) : CartRepository {
 
     private val cartDao = db.cartDao()
 
