@@ -43,7 +43,6 @@ import com.golash.app.ui.theme.Marcellus
 import com.golash.app.ui.theme.WarmSand
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun RotatingProductCard(
     products: List<Product>,

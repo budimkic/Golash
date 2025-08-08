@@ -76,6 +76,7 @@ import com.golash.app.ui.screens.cart.CartViewModel
 import com.golash.app.ui.theme.CrimsonText
 import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
+import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Inter
 import com.golash.app.ui.theme.Ivory
 import com.golash.app.ui.theme.Linen
@@ -225,12 +226,11 @@ private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAdd
                         .padding(bottom = 16.dp)
                 )
 
-                // Product Description - Clean and Readable
-                //TODO change Font
+
                 Text(
                     text = product.description,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                    fontSize = 16.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Normal,
                     color = DeepBark,
                     fontFamily = CrimsonText,
@@ -283,7 +283,7 @@ private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAdd
                         .size(50.dp)
                         .scale(pulseScale.value)
                         .align(Alignment.Center)
-                        .background(color = DarkChestnut, shape = CircleShape)
+                        .background(color = DarkChestnut, shape = NotchedLabelShape(14f))
                         .pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown()
