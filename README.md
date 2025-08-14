@@ -91,7 +91,7 @@ Full details are in the [LICENSE.txt](LICENSE.txt) file.
 
 ## 👋 About Me
 
-Hi, I’m Nemanja — building elegant and robust Android apps for real-world use.
+Hi, I’m Nemanja – building elegant and robust Android apps for real–world use.
 _Contact: budimkic@proton.me_
 
 ---
