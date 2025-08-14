@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">Golash</string>
+    <string name="add_to_cart">Add to cart</string>
+    <string name="close">Close</string>
+    <string name="description">Description</string>
+    <string name="retry">Retry</string>
+    <string name="checkout">Checkout</string>
+    <string name="resource">RESOURCE</string>
+    <string name="remote">REMOTE</string>
+    <string name="product_image">Product image</string>
+
+    // Error messages
+    <string name="error_invalid_resource">Invalid resource ID for product image</string>
+    <string name="default_error_msg">Something went wrong</string>
+    <string name="unknown_error">Unknown error</string>
+
+    <string name="fill_your_cart">Fill your cart with goodies</string>
+
+
 </resources>
