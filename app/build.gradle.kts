@@ -11,7 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.golash"
+        applicationId = "com.golash.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -45,9 +45,6 @@ android {
     
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 

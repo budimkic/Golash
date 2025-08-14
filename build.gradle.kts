@@ -4,7 +4,6 @@ buildscript {
         google()
         mavenCentral()
     }
-    dependencies {}
 }
 
 plugins {
