@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.golash.app.R
 import com.golash.app.data.model.Cart
 import com.golash.app.data.model.CartItem
 import com.golash.app.data.model.Product
@@ -85,10 +87,10 @@ fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
                 modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Something went wrong.", color = Color.Red)
+                    Text(stringResource(R.string.default_error_msg), color = Color.Red)
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(onClick = { cartViewModel.refresh() }) {
-                        Text("Retry")
+                        Text(stringResource(R.string.retry))
                     }
                 }
             }
@@ -121,7 +123,7 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Fill your cart with goodies",
+                        stringResource(R.string.fill_your_cart),
                         style = MaterialTheme.typography.headlineSmall,
                         color = Color.Gray,
                         textAlign = TextAlign.Center
@@ -174,13 +176,13 @@ private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChan
                     .fillMaxHeight()
                     .width(100.dp)
             ) {
-                if (cartItem.product.primaryImage?.type?.name == "RESOURCE"){
+                if (cartItem.product.primaryImage?.type?.name == stringResource(R.string.resource)) {
                     val resourceId = cartItem.product.primaryImage?.url?.toIntOrNull()
 
                     resourceId?.let { id ->
                         Image(
                             painterResource(id = id),
-                            contentDescription = "Product image",
+                            contentDescription = stringResource(R.string.product_image),
                             modifier = Modifier
                                 .fillMaxSize(),
                             contentScale = ContentScale.Fit
@@ -188,16 +190,16 @@ private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChan
                         )
                     } ?: Log.e(
                         "CartScreen",
-                        "Invalid resource ID for product image"
+                        stringResource(R.string.error_invalid_resource)
                     )
-                } else if (cartItem.product.primaryImage?.type?.name == "REMOTE"){
+                } else if (cartItem.product.primaryImage?.type?.name == stringResource(R.string.remote)) {
                     AsyncImage(
                         model = cartItem.product.primaryImage,
                         contentDescription = cartItem.product.name,
-                        contentScale = ContentScale.Fit, // Fill height & keep aspect ratio
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .fillMaxHeight()
-                            .clip(RoundedCornerShape(16.dp)),  // Fill vertical space
+                            .clip(RoundedCornerShape(16.dp)),
                     )
                 }
 
@@ -283,7 +285,7 @@ private fun CartFooter(total: Double, onCheckout: () -> Unit) {
                 IconButton(onClick = { onCheckout }, modifier = Modifier.fillMaxSize()) {
                     Icon(
                         Icons.Default.Check,
-                        contentDescription = "Checkout",
+                        contentDescription = stringResource(R.string.checkout),
                         tint = Ivory,
                         modifier = Modifier.size(24.dp)
                     )

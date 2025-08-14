@@ -74,6 +74,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -86,6 +87,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.golash.app.R
 import com.golash.app.data.model.Product
 import com.golash.app.ui.screens.cart.AddToCartResult
 import com.golash.app.ui.screens.cart.CartViewModel
@@ -246,7 +248,8 @@ private fun DetailContent(
                         contentDescription = "Show full description",
                         tint = DarkChestnut,
                         modifier = Modifier
-                            .size(24.dp).align(Alignment.CenterHorizontally)
+                            .size(24.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                 }
 
@@ -298,10 +301,10 @@ private fun DetailContent(
                             TextButton(
                                 onClick = { showDescriptionDialog = false }
                             ) {
-                                Text("Close")
+                                Text(stringResource(R.string.close))
                             }
                         },
-                        title = { Text("Description") },
+                        title = { Text(stringResource(R.string.description)) },
                         text = { Text(product.description) }
                     )
                 }
@@ -334,14 +337,14 @@ private fun DetailContent(
                         .padding(vertical = 2.dp)
                 ) {
                     //TODO Fix curved text
-                 /*   if (textAlpha > 0f) {
-                        CurvedText(
-                            text = "ADD TO CART",
-                            buttonRadius = 22.5f,
-                            alpha = textAlpha,
-                            modifier = Modifier.size(90.dp)
-                        )
-                    }*/
+                    /*   if (textAlpha > 0f) {
+                           CurvedText(
+                               text = "ADD TO CART",
+                               buttonRadius = 22.5f,
+                               alpha = textAlpha,
+                               modifier = Modifier.size(90.dp)
+                           )
+                       }*/
 
 
                     Box(
@@ -391,7 +394,7 @@ private fun DetailContent(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
-                            contentDescription = "Add to Cart",
+                            contentDescription = stringResource(R.string.add_to_cart),
                             tint = Ivory,
                             modifier = Modifier.size(35.dp)
                         )

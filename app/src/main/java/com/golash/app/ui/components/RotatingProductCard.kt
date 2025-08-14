@@ -37,11 +37,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.golash.app.R
 import com.golash.app.data.model.Product
 import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Marcellus
@@ -114,29 +116,28 @@ fun RotatingProductCard(
                         modifier = Modifier.size(width = containerWidth, height = containerHeight),
                         colors = CardDefaults.cardColors(containerColor = WarmSand)
                     ) {
-                        if (animatedProduct.primaryImage?.type?.name == "RESOURCE") {
+                        if (animatedProduct.primaryImage?.type?.name == stringResource(R.string.resource)) {
                             val resourceId = animatedProduct.primaryImage?.url?.toIntOrNull()
                             resourceId?.let { id ->
                                 Image(
                                     painterResource(id = id),
-                                    contentDescription = "Product image",
+                                    contentDescription = stringResource(R.string.product_image),
                                     modifier = Modifier
                                         .fillMaxSize(),
                                     contentScale = ContentScale.Fit
-                                    // fit entire image, no cropping
                                 )
                             } ?: Log.e(
                                 "RotatingProductCard",
-                                "Invalid resource ID for product image"
+                                stringResource(R.string.error_invalid_resource)
                             )
-                        } else if (animatedProduct.primaryImage?.type?.name == "REMOTE") {
+                        } else if (animatedProduct.primaryImage?.type?.name == stringResource(R.string.remote)) {
                             AsyncImage(
                                 model = animatedProduct.primaryImage?.url,
-                                contentDescription = "Product image",
+                                contentDescription = stringResource(R.string.product_image),
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(20.dp)),
-                                contentScale = ContentScale.Fit // keep full image visible
+                                contentScale = ContentScale.Fit
                             )
                         }
 

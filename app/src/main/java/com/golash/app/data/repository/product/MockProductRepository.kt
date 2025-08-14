@@ -1,6 +1,5 @@
 package com.golash.app.data.repository.product
 
-import androidx.compose.ui.res.painterResource
 import com.golash.app.R
 import com.golash.app.data.model.Product
 import com.golash.app.data.model.ProductImage
@@ -8,7 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class InMemoryProductRepository @Inject constructor() : ProductRepository {
+class MockProductRepository @Inject constructor() : ProductRepository {
 
     //Mock Data
     private val haremPants = R.drawable.torba2

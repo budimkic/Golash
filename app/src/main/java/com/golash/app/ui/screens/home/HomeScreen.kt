@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,7 +55,10 @@ fun HomeScreen(
     LaunchedEffect(uiState) {
         if (uiState is HomeUiState.Error) {
             val errorMessage = (uiState as HomeUiState.Error).message
-            snackbarHostState.showSnackbar(message = errorMessage, actionLabel = "Retry")
+            snackbarHostState.showSnackbar(
+                message = errorMessage,
+                actionLabel = "Retry"
+            )
                 .let { result ->
                     if (result == SnackbarResult.ActionPerformed) {
                         viewModel.refresh()
@@ -81,8 +85,8 @@ private fun HomeContent(
 
     val scrollState = rememberScrollState()
     var initialAnimationState by rememberSaveable { mutableStateOf(false) }
-    var showText by remember {mutableStateOf(false)}
-    var showCard by remember {mutableStateOf(false)}
+    var showText by remember { mutableStateOf(false) }
+    var showCard by remember { mutableStateOf(false) }
     var showProducts by remember { mutableStateOf(false) }
 
     // Handle initial animation
@@ -146,11 +150,11 @@ private fun HomeContent(
 
         when (uiState) {
             is HomeUiState.Loading -> {
-                ShimmerEffect(
+               /* ShimmerEffect(
                     isLoading = true,
                     contentAfterLoading = {}, modifier = Modifier.padding(32.dp),
                     height = 200.dp, shape = RoundedCornerShape(12.dp)
-                )
+                ) */
             }
 
             is HomeUiState.Success -> {

@@ -13,7 +13,6 @@ class Converters {
 
     @TypeConverter
     fun fromStringList(list: List<String>): String = list?.joinToString(",") ?: ""
-
     @TypeConverter
     fun toStringList(data: String): List<String> =
         if (data.isNullOrEmpty()) emptyList() else data.split(",")
@@ -24,7 +23,6 @@ class Converters {
         val adapter = moshi.adapter<List<ProductImage>>(listType)
         return adapter.toJson(images)
     }
-
     @TypeConverter
     fun toProductImageList(json: String): List<ProductImage> {
         if (json.isEmpty()) return emptyList()

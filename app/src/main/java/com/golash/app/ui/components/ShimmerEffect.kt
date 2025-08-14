@@ -22,18 +22,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * A shimmer effect composable that displays a loading animation or content based on loading state.
- * 
- * @param isLoading Whether to show the shimmer effect or the actual content
- * @param contentAfterLoading The content to display when loading is complete
- * @param modifier Modifier to be applied to the composable
- * @param shimmerColors Custom colors for the shimmer effect (optional)
- * @param animationDuration Duration of the shimmer animation in milliseconds
- * @param shimmerWidth Width of the shimmer gradient effect
- * @param shape Shape of the shimmer container
- * @param height Height of the shimmer container when loading
- */
 @Composable
 fun ShimmerEffect(
     isLoading: Boolean,
@@ -82,14 +70,6 @@ fun ShimmerEffect(
     }
 }
 
-/**
- * A shimmer effect modifier that can be applied to any composable.
- * 
- * @param isLoading Whether to show the shimmer effect
- * @param shimmerColors Custom colors for the shimmer effect
- * @param animationDuration Duration of the shimmer animation in milliseconds
- * @param shimmerWidth Width of the shimmer gradient effect
- */
 @Composable
 fun Modifier.shimmer(
     isLoading: Boolean,
