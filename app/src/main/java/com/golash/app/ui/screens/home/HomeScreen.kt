@@ -133,13 +133,14 @@ private fun HomeContent(
             else fadeIn(tween(0))
         ) {
             Text(
-                text = "Beri bosiljak pred zalazak, tada je najmirisniji.",
+                text = "Plant a tree today, " +
+                        "its shade will outlive you.",
                 fontFamily = CormorantGaramondItalic,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = DeepBark,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 24.dp, bottom = 50.dp)
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp)
             )
         }
 

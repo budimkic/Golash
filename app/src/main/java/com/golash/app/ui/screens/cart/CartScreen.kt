@@ -42,7 +42,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +53,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.golash.app.data.model.Cart
 import com.golash.app.data.model.CartItem
 import com.golash.app.data.model.Product
+import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.DeepOlive
 import com.golash.app.ui.theme.EarthBrown
@@ -118,9 +121,10 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Your cart is empty.",
+                        "Fill your cart with goodies",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
                     )
                 }
 
@@ -141,48 +145,11 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit) {
                 }
             }
         }
-        /* Box(
-             modifier = Modifier
-                 .fillMaxWidth()
-                 .height(2.dp)
-                 .background(Color.Black)
-         )*/
         Spacer(Modifier.height(16.dp))
         if (cart.items.isNotEmpty()) {
-            /*Row(Modifier.padding(bottom = 30.dp, start = 20.dp)) {
-                Text(
-                    text =
-                        "Total: ${"%.2f".format(cart.totalPrice)} RSD",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Marcellus
-                    ),
-                    color = Color.Black
-                )
-*/
-
             CartFooter(cart.totalPrice) { }
-            /*  Text(
-                  text =
-                      "Total: ${"%.2f".format(cart.totalPrice)} RSD",
-                  style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                  color = Color.Black
-              )*/
         }
     }
-
-    /*   Spacer(Modifier.height(16.dp))
-       Button(
-           onClick = {},
-           modifier = Modifier
-               .width(300.dp)
-               .clip(shape = RoundedCornerShape(100.dp))
-               .align(Alignment.CenterHorizontally)
-               .height(56.dp)
-               .padding(10.dp),
-           colors = ButtonColors(Color.Black, Color.White, Color.White, Color.Gray),
-           enabled = cart.items.isNotEmpty()
-       ) { Text("ORDER") }*/
 }
 
 
@@ -202,20 +169,39 @@ private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChan
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(100.dp)
             ) {
-                AsyncImage(
-                    model = cartItem.product.imageUrl,
-                    contentDescription = cartItem.product.name,
-                    contentScale = ContentScale.Fit, // Fill height & keep aspect ratio
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(16.dp)),  // Fill vertical space
-                )
+                if (cartItem.product.primaryImage?.type?.name == "RESOURCE"){
+                    val resourceId = cartItem.product.primaryImage?.url?.toIntOrNull()
+
+                    resourceId?.let { id ->
+                        Image(
+                            painterResource(id = id),
+                            contentDescription = "Product image",
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                            // fit entire image, no cropping
+                        )
+                    } ?: Log.e(
+                        "CartScreen",
+                        "Invalid resource ID for product image"
+                    )
+                } else if (cartItem.product.primaryImage?.type?.name == "REMOTE"){
+                    AsyncImage(
+                        model = cartItem.product.primaryImage,
+                        contentDescription = cartItem.product.name,
+                        contentScale = ContentScale.Fit, // Fill height & keep aspect ratio
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(16.dp)),  // Fill vertical space
+                    )
+                }
+
+
             }
 
             Spacer(Modifier.width(12.dp))
@@ -258,16 +244,6 @@ private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChan
                     }
                 }
             }
-            /* IconButton(
-                 onClick = onRemove,
-                 modifier = Modifier.background(
-                     color = Oak.copy(alpha = 0.2f),
-                     shape = RoundedCornerShape(50)
-                 )
-             ) {
-                 Icon(Icons.Default.Delete, contentDescription = "Remove", tint = DeepBark)
-             }*/
-
         }
     }
 
@@ -278,8 +254,6 @@ private fun CartFooter(total: Double, onCheckout: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            //.shadow(8.dp)
-            //  .background(Oak)
             .padding(12.dp)
     ) {
         Column(

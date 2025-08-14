@@ -2,11 +2,14 @@ package com.golash.app.ui.screens.detail
 
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.util.Log
 import android.view.ViewConfiguration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -15,10 +18,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,14 +32,21 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,15 +70,19 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -134,9 +150,13 @@ fun DetailScreen(
 }
 
 @Composable
-private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAddToCart: (Product) -> Unit) {
-    val pagerState = rememberPagerState(pageCount = { product.imageUrls.size })
-    var showCurvedText by remember {mutableStateOf(false)}
+private fun DetailContent(
+    modifier: Modifier = Modifier,
+    product: Product,
+    onAddToCart: (Product) -> Unit
+) {
+    val pagerState = rememberPagerState(pageCount = { product.images.size })
+    var showCurvedText by remember { mutableStateOf(false) }
     val textAlpha by animateFloatAsState(
         targetValue = if (showCurvedText) 1f else 0f,
         animationSpec = tween(durationMillis = 500),
@@ -145,6 +165,8 @@ private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAdd
 
     val scope = rememberCoroutineScope()
     val pulseScale = remember { androidx.compose.animation.core.Animatable(1f) }
+
+    var showDescriptionDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -159,6 +181,7 @@ private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAdd
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(PAGER_ASPECT_RATIO)
+
             ) {
                 HorizontalPager(
                     state = pagerState, userScrollEnabled = true, modifier = Modifier.fillMaxSize()
@@ -205,17 +228,28 @@ private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAdd
                     .padding(horizontal = 24.dp, vertical = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Product Name - Clean and Bold
-                Text(
-                    text = product.name,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = DeepBark,
-                    fontFamily = Marcellus,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 0.sp
-                )
+
+                Column(Modifier.clickable { showDescriptionDialog = true }) {
+                    Text(
+                        text = product.name,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = DeepBark,
+                        fontFamily = Marcellus,
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 0.sp
+                    )
+
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Show full description",
+                        tint = DarkChestnut,
+                        modifier = Modifier
+                            .size(24.dp).align(Alignment.CenterHorizontally)
+                    )
+                }
+
 
                 // Simple underline
                 Box(
@@ -226,112 +260,160 @@ private fun DetailContent(modifier: Modifier = Modifier, product: Product, onAdd
                         .padding(bottom = 16.dp)
                 )
 
+                //var expanded by remember { mutableStateOf(false) }
+                //val maxLines = if (expanded) Int.MAX_VALUE else 3
 
-                Text(
-                    text = product.description,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = DeepBark,
-                    fontFamily = CrimsonText,
-                    lineHeight = 24.sp,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 0.1.sp
-                )
-            }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDescriptionDialog = true }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-        }
 
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 2.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Box(
-                modifier = Modifier.background(
-                    color = DarkChestnut,
-                    shape = NotchedLabelShape(notchRadius = 14f),
-                )
-            ) {
-                Text(
-                    modifier = Modifier.padding(10.dp),
-                    text = "${product.price.toInt()} RSD",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Ivory,
-                    fontFamily = Marcellus
-                )
-            }
-
-            Box(modifier = Modifier.size(90.dp)) {
-                if (textAlpha > 0f) {
-                    CurvedText(
-                        text = "ADD TO CART",
-                        buttonRadius = 22.5f,
-                        alpha = textAlpha,
-                        modifier = Modifier.size(90.dp)
+                    Text(
+                        text = product.description,
+                        modifier = Modifier
+                            .weight(1f, fill = true)
+                            .wrapContentHeight(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = DeepBark,
+                        fontFamily = CrimsonText,
+                        lineHeight = 24.sp,
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 0.1.sp,
                     )
+
+
                 }
 
+
+                if (showDescriptionDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDescriptionDialog = false },
+                        confirmButton = {
+                            TextButton(
+                                onClick = { showDescriptionDialog = false }
+                            ) {
+                                Text("Close")
+                            }
+                        },
+                        title = { Text("Description") },
+                        text = { Text(product.description) }
+                    )
+                }
 
                 Box(
                     modifier = Modifier
-                        .size(50.dp)
-                        .scale(pulseScale.value)
-                        .align(Alignment.Center)
-                        .background(color = DarkChestnut, shape = NotchedLabelShape(14f))
-                        .pointerInput(Unit) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown()
-                                var longPressJob: Job? = null
-                                var longPressed = false
-
-                                // Start pulse on press
-                                scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
-
-                                longPressJob = scope.launch {
-                                    delay(ViewConfiguration.getLongPressTimeout().toLong())
-                                    longPressed = true
-                                    showCurvedText = true
-                                }
-
-                                val up = waitForUpOrCancellation()
-                                longPressJob.cancel()
-
-                                if (up == null) {
-                                    // Gesture was cancelled, animate back
-                                    scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                    showCurvedText = false
-                                    return@awaitEachGesture
-                                }
-
-                                if (!longPressed) {
-                                    // TAP: quick pulse, add to cart
-                                    scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                    onAddToCart(product)
-                                    showCurvedText = false
-                                } else {
-                                    // LONG PRESS: animate back, keep text visible until release
-                                    scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                    showCurvedText = false
-                                }
-                            }
-                        },
-                    contentAlignment = Alignment.Center
+                        .padding(2.dp)
+                        .background(
+                            color = DarkChestnut,
+                            shape = NotchedLabelShape(notchRadius = 14f),
+                        )
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add to Cart",
-                        tint = Ivory,
-                        modifier = Modifier.size(20.dp)
+                    Text(
+                        modifier = Modifier.padding(
+                            10.dp
+                        ),
+                        text = "${product.price.toInt()} RSD",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Ivory,
+                        fontFamily = Marcellus
                     )
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(90.dp)
+                        .padding(vertical = 2.dp)
+                ) {
+                    //TODO Fix curved text
+                 /*   if (textAlpha > 0f) {
+                        CurvedText(
+                            text = "ADD TO CART",
+                            buttonRadius = 22.5f,
+                            alpha = textAlpha,
+                            modifier = Modifier.size(90.dp)
+                        )
+                    }*/
+
+
+                    Box(
+                        modifier = Modifier
+                            .size(45.dp)
+                            .scale(pulseScale.value)
+                            .align(Alignment.Center)
+                            .background(color = DarkChestnut, shape = CircleShape)
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    val down = awaitFirstDown()
+                                    var longPressJob: Job? = null
+                                    var longPressed = false
+
+                                    // Start pulse on press
+                                    scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
+
+                                    longPressJob = scope.launch {
+                                        delay(ViewConfiguration.getLongPressTimeout().toLong())
+                                        longPressed = true
+                                        showCurvedText = true
+                                    }
+
+                                    val up = waitForUpOrCancellation()
+                                    longPressJob.cancel()
+
+                                    if (up == null) {
+                                        // Gesture was cancelled, animate back
+                                        scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                        showCurvedText = false
+                                        return@awaitEachGesture
+                                    }
+
+                                    if (!longPressed) {
+                                        // TAP: quick pulse, add to cart
+                                        scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                        onAddToCart(product)
+                                        showCurvedText = false
+                                    } else {
+                                        // LONG PRESS: animate back, keep text visible until release
+                                        scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                        showCurvedText = false
+                                    }
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Add to Cart",
+                            tint = Ivory,
+                            modifier = Modifier.size(35.dp)
+                        )
+                    }
+                }
             }
+
         }
+
+        /*  Row(
+              modifier = Modifier
+                  .align(Alignment.BottomCenter)
+                  .fillMaxWidth()
+                  .padding(horizontal = 20.dp, vertical = 2.dp),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
+          ) {
+
+
+
+
+          }*/
     }
 }
 
@@ -375,7 +457,7 @@ private fun CurvedText(
         drawContext.canvas.nativeCanvas.apply {
             val paint = Paint().apply {
                 color = textColor.toArgb()
-                textSize = with(density) { 10.sp.toPx() }
+                textSize = with(density) { 6.sp.toPx() }
                 typeface = Typeface.DEFAULT_BOLD
                 isAntiAlias = true
 
@@ -463,11 +545,47 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
                 )
             }, shape = RectangleShape
     ) {
-        AsyncImage(
-            model = product.imageUrls[page],
-            contentDescription = "",
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Linen),
+            contentAlignment = Alignment.Center
+        ) {
+            if (product.images[page].type?.name == "RESOURCE") {
+                val resourceId = product.images[page].url?.toIntOrNull()
+                resourceId?.let { id ->
+                    Image(
+                        painterResource(id = id),
+                        contentDescription = "Product image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Fit
+                        // fit entire image, no cropping
+                    )
+                } ?: Log.e(
+                    "RotatingProductCard",
+                    "Invalid resource ID for product image"
+                )
+            } else if (product.images[page].type?.name == "REMOTE") {
+                AsyncImage(
+                    model = product.images[page],
+                    contentDescription = "Product image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(20.dp)),
+                    contentScale = ContentScale.Fit // keep full image visible
+                )
+            }
+        }
+
+
+        /* AsyncImage(
+             model = product.images[page],
+             contentDescription = "",
+             modifier = Modifier.fillMaxWidth(),
+         )*/
     }
 }
 

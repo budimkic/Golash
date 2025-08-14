@@ -11,38 +11,46 @@ import javax.inject.Singleton
 class InMemoryProductRepository @Inject constructor() : ProductRepository {
 
     //Mock Data
-    private val haremPants = R.drawable.harem_pants
+    private val haremPants = R.drawable.torba2
     private val bag = R.drawable.torba2
     private val pad = R.drawable.pad
     private val wallet = R.drawable.wallet
 
-    private val listOfImages = listOf(haremPants, bag, pad)
+    private val listOfImages = listOf(
+        ProductImage.fromResource(wallet),
+        ProductImage.fromResource(bag),
+        ProductImage.fromResource(pad)
+    )
 
     private val products = listOf(
         Product(
             "1",
             "Nomad Pants",
-            "Billowing, free-flowing linen trousers designed for movement, comfort, and effortless style. " + "Inspired by wandering souls and desert blooms, " + "they drape with grace and tell a story with every step.",
+            "Billowing, free-flowing linen trousers designed for movement, comfort, and effortless style.",
             5500.0,
             images = listOf(ProductImage.fromResource(haremPants))
         ), Product(
             "2",
             "Boho Bag",
-            "Handcrafted with love from natural fibers, this Boho Bag combines earthy textures and vibrant patterns for a stylish yet practical companion. " + "Perfect for free spirits who carry their essentials " + "with a touch of artistic flair and eco-conscious soul.",
+            "Handcrafted with love from natural fibers, this Boho Bag combines earthy textures and vibrant patterns.",
             4500.0,
             images = listOf(ProductImage.fromResource(bag))
         ), Product(
             "3",
             "Menstrual Pad",
-            "Reusable menstrual pad made from soft, natural fabrics that provide comfort and reliable protection while being eco-friendly.",
+            "Reusable menstrual pad made from soft, natural fabrics for comfort and protection.",
             2500.0,
             images = listOf(ProductImage.fromResource(pad))
         ), Product(
             "4",
             "Wallet",
-            "Handcrafted linen wallet with a slim, durable design, perfect for carrying cash, cards, " + "and small essentials while keeping an earthy, natural aesthetic.",
+            "Handcrafted linen wallet with a slim, durable design, perfect for carrying cash, cards, and small essentials.",
             3500.0,
-            images = listOf(ProductImage.fromResource(wallet))
+            images = listOf(
+                ProductImage.fromResource(wallet),
+                ProductImage.fromResource(bag),
+                ProductImage.fromResource(pad)
+            )
     ))
 
     override fun getProducts(): List<Product> = products

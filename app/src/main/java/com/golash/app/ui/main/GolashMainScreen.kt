@@ -29,7 +29,7 @@ import com.golash.app.ui.theme.WarmSand
 fun GolashMainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     var selectedDestination by rememberSaveable {
-        mutableIntStateOf(0) // Prvi element u bottomNavDestinations – HOME
+        mutableIntStateOf(0)
     }
 
     Scaffold(
@@ -38,7 +38,6 @@ fun GolashMainScreen(modifier: Modifier = Modifier) {
                 containerColor = WarmSand, windowInsets = NavigationBarDefaults.windowInsets
             ) {
                 Destination.bottomNavDestinations.forEachIndexed { index, destination ->
-
                     NavigationBarItem(
                         selected = selectedDestination == index,
                         onClick = {
@@ -66,7 +65,7 @@ fun GolashMainScreen(modifier: Modifier = Modifier) {
                             unselectedIconColor = Oak,
                             selectedTextColor = DarkChestnut,
                             unselectedTextColor = Oak,
-                            indicatorColor = Color(0x99CBBF9D) // ili DriedWheat ako je bar tamniji
+                            indicatorColor = Color(0x99CBBF9D)
                         ),
                     )
                 }
