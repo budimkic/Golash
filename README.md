@@ -6,42 +6,43 @@ _A full-featured e-commerce app in active development, built with Jetpack Compos
 ---
 
 ## 🚀 Overview
-Golash is the official Android app for the Golash clothing brand, built for production use.  
-It’s designed to provide customers with a seamless shopping experience — featuring elegant UI, responsive animations, and a robust, scalable architecture for long-term growth.
+Golash is the official Android app for the Golash clothing brand, built for production.  
+It provides a seamless shopping experience with elegant UI, smooth animations, and a scalable architecture for long-term growth.
 
 ---
 
 ## ✨ Features
 
-- **Jetpack Compose UI** – Fully declarative UI with custom components and animations
-- **MVVM + Clean Architecture** – Structured, maintainable, and scalable codebase
-- **Hilt Dependency Injection** – Modular, testable, and reusable components
-- **Coroutines & StateFlow** – Reactive state handling and async operations
+- **Jetpack Compose UI** – Declarative UI with custom components & animations
+- **MVVM + Clean Architecture** – Structured, maintainable, scalable codebase
+- **Hilt DI** – Modular, testable, reusable components
+- **Coroutines & StateFlow** – Reactive state & async operations
 - **Custom UI/UX**:
-  - Animated product galleries and transitions
-  - Curved text and advanced gesture handling
-  - Label-style price tags with cut-out corners
-  - Interactive add-to-cart animations
-- **Room Database** – Local persistence for cart and offline access
-- **Material 3 Design** – Modern, accessible, and visually appealing
+    - Animated product galleries and transitions
+    - Curved text & advanced gestures
+    - Label-style price tags with cut-out corners
+    - Interactive add-to-cart animations
+- **Room Database** – Local cart persistence & offline support
+- **Material 3 Design** – Modern, accessible, visually appealing
 - **Moshi** – JSON parsing
 - **Repository Pattern** – Clear separation of data sources
 
-**Planned Features:**
-- Firebase integration for authentication, storage, and analytics
-- Unit and UI testing coverage
+**Planned Features:** Firebase (auth, storage, analytics) and full test coverage
 
 ---
 
 ## 📸 Screenshots
 
-![Screen 1](screenshots/screen_home.jpg)
-![Screen 2](screenshots/screen_detail.jpg)
-![Screen 3](screenshots/screen_cart.jpg)
+<p float="left">
+  <img src="screenshots/screen_home.jpg" width="200" />
+  <img src="screenshots/screen_detail.jpg" width="200" />
+  <img src="screenshots/screen_cart.jpg" width="200" />
+</p>
 
 ---
 
 ## 🛠️ Tech Stack
+
 - **Language:** Kotlin  
 - **UI:** Jetpack Compose, Material 3  
 - **Architecture:** MVVM + Clean Architecture  
@@ -53,25 +54,28 @@ It’s designed to provide customers with a seamless shopping experience — fea
 ---
 
 ## 📝 Status
-> **This project is a work in progress (WIP).**  
-> Actively developing new features, improving UI/UX, and adding tests/documentation.
+
+**Work in progress (WIP)** – actively developing features, improving UI/UX, and adding tests/documentation.
 
 ---
 
 ## 💡 Why Golash?
-- Demonstrates advanced Compose UI and animation techniques
-- Showcases best practices for scalable Android apps
-- Highlights skills in architecture, DI, and modern Android tooling
-- Built with portfolio and production readiness in mind
+
+- Explore advanced Jetpack Compose UI and animations in a real app
+- Learn scalable architecture, DI, and reactive state handling
+- See a production-ready e-commerce app from start to finish
+- Great reference for building robust, modern Android apps
 
 ---
 
 ## 🚦 How to Run
-1. **Clone the repo**  
+
+1. **Clone the repo**
    ```bash
    git clone https://github.com/yourusername/golash.git
+   ```
 2. **Open in Android Studio (Giraffe or newer)**
-3. **Build & Run** on an emulator or device (API 26+)
+3. **Build & Run on an emulator or device (API 26+)**
 
 ---
 
@@ -87,7 +91,7 @@ Full details are in the [LICENSE.txt](LICENSE.txt) file.
 
 ## 👋 About Me
 
-Hi, I’m Nemanja, a passionate Android developer specializing in modern, beautiful, and robust mobile apps.  
+Hi, I’m Nemanja — building elegant and robust Android apps for real-world use.
 _Contact: budimkic@proton.me_
 
 ---
