@@ -19,7 +19,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,11 +34,14 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -45,6 +51,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarData
@@ -114,6 +121,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.absoluteValue
+import androidx.compose.animation.core.Animatable
+import kotlin.coroutines.coroutineContext
+
 
 private const val MIN_ALPHA = 0.5f
 private const val MAX_ALPHA = 1f
@@ -150,7 +160,8 @@ fun DetailScreen(
             hostState = snackbarHostState,
             snackbar = { snackbarData -> CustomSnackbar(snackbarData) }
         )
-    }) { paddingValues ->
+    }
+    ) { paddingValues ->
         when (val state = detailUiState) {
             is DetailUiState.Success ->
                 DetailContent(
@@ -183,13 +194,14 @@ private fun DetailContent(
 
     var showDescriptionDialog by remember { mutableStateOf(false) }
 
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(Linen)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .weight(1f)
         ) {
 
             Box(
@@ -310,97 +322,78 @@ private fun DetailContent(
                     CustomDialog(product, onDismissRequest = { showDescriptionDialog = false })
                 }
 
-                Box(
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .background(
-                            color = DarkChestnut,
-                            shape = NotchedLabelShape(notchRadius = 14f),
-                        )
-                ) {
-                    Text(
-                        modifier = Modifier.padding(
-                            10.dp
-                        ),
-                        text = "${product.price.toInt()} RSD",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Ivory,
-                        fontFamily = Marcellus
-                    )
-                }
+
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Box(
-                    modifier = Modifier
-                        .size(90.dp)
-                        .padding(vertical = 2.dp)
-                ) {
-                    //TODO Fix curved text
-                    /*   if (textAlpha > 0f) {
-                           CurvedText(
-                               text = "ADD TO CART",
-                               buttonRadius = 22.5f,
-                               alpha = textAlpha,
-                               modifier = Modifier.size(90.dp)
-                           )
-                       }*/
-
-
-                    Box(
+                /*    Box(
                         modifier = Modifier
-                            .size(45.dp)
-                            .scale(pulseScale.value)
-                            .align(Alignment.Center)
-                            .background(color = DarkChestnut, shape = CircleShape)
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    val down = awaitFirstDown()
-                                    var longPressJob: Job? = null
-                                    var longPressed = false
-
-                                    // Start pulse on press
-                                    scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
-
-                                    longPressJob = scope.launch {
-                                        delay(ViewConfiguration.getLongPressTimeout().toLong())
-                                        longPressed = true
-                                        showCurvedText = true
-                                    }
-
-                                    val up = waitForUpOrCancellation()
-                                    longPressJob.cancel()
-
-                                    if (up == null) {
-                                        // Gesture was cancelled, animate back
-                                        scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                        showCurvedText = false
-                                        return@awaitEachGesture
-                                    }
-
-                                    if (!longPressed) {
-                                        // TAP: quick pulse, add to cart
-                                        scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                        onAddToCart(product)
-                                        showCurvedText = false
-                                    } else {
-                                        // LONG PRESS: animate back, keep text visible until release
-                                        scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                        showCurvedText = false
-                                    }
-                                }
-                            },
-                        contentAlignment = Alignment.Center
+                            .size(90.dp)
+                            .padding(top = 15.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = stringResource(R.string.add_to_cart),
-                            tint = Ivory,
-                            modifier = Modifier.size(35.dp)
-                        )
-                    }
-                }
+                        //TODO Fix curved text
+                           if (textAlpha > 0f) {
+                               CurvedText(
+                                   text = "ADD TO CART",
+                                   buttonRadius = 22.5f,
+                                   alpha = textAlpha,
+                                   modifier = Modifier.size(90.dp)
+                               )
+                           }
+
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .scale(pulseScale.value)
+                                .align(Alignment.Center)
+                                .background(color = DarkChestnut, shape = CircleShape)
+                                .pointerInput(Unit) {
+                                    awaitEachGesture {
+                                        val down = awaitFirstDown()
+                                        var longPressJob: Job? = null
+                                        var longPressed = false
+
+                                        // Start pulse on press
+                                        scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
+
+                                        longPressJob = scope.launch {
+                                            delay(ViewConfiguration.getLongPressTimeout().toLong())
+                                            longPressed = true
+                                            showCurvedText = true
+                                        }
+
+                                        val up = waitForUpOrCancellation()
+                                        longPressJob.cancel()
+
+                                        if (up == null) {
+                                            // Gesture was cancelled, animate back
+                                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                            showCurvedText = false
+                                            return@awaitEachGesture
+                                        }
+
+                                        if (!longPressed) {
+                                            // TAP: quick pulse, add to cart
+                                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                            onAddToCart(product)
+                                            showCurvedText = false
+                                        } else {
+                                            // LONG PRESS: animate back, keep text visible until release
+                                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                                            showCurvedText = false
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.add_to_cart),
+                                tint = Ivory,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }*/
             }
 
         }
@@ -418,8 +411,119 @@ private fun DetailContent(
 
 
           }*/
+
+        CartFooter(product, onAddToCart, textAlpha)
     }
 }
+
+@Composable
+private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit, textAlpha: Float) {
+
+    val scope = rememberCoroutineScope()
+    val pulseScale = remember { Animatable(1f) }
+    var showCurvedText by remember { mutableStateOf(false) }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Box(
+            modifier = Modifier
+                .padding(2.dp)
+                .background(
+                    color = DarkChestnut,
+                    shape = NotchedLabelShape(notchRadius = 14f),
+                )
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    10.dp
+                ),
+                text = "${product.price.toInt()} RSD",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Ivory,
+                fontFamily = Marcellus
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //TODO Fix curved text
+
+
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .scale(pulseScale.value)
+                .background(color = DarkChestnut, shape = CircleShape)
+                .pointerInput(Unit) {
+                    Log.d("DetailScreen", "Pointer Input Log Start")
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        var longPressJob: Job? = null
+                        var longPressed = false
+
+                        // Start pulse on press
+                        scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
+
+                        longPressJob = scope.launch {
+                            delay(ViewConfiguration.getLongPressTimeout().toLong())
+                            longPressed = true
+                            showCurvedText = true
+                        }
+
+                        val up = waitForUpOrCancellation()
+                        longPressJob.cancel()
+
+                        if (up == null) {
+                            // Gesture was cancelled, animate back
+                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                            showCurvedText = false
+                            return@awaitEachGesture
+                        }
+
+                        if (!longPressed) {
+                            // TAP: quick pulse, add to cart
+                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                            onAddToCart(product)
+                            showCurvedText = false
+                        } else {
+                            // LONG PRESS: animate back, keep text visible until release
+                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                            showCurvedText = false
+                        }
+                        Log.d("DetailScreen", "Pointer Input Log End")
+                    }
+                }
+
+        ) {
+            //TODO DetailScreen gets called recursively?
+            Log.d("DetailScreen", "TextAlpha Log $textAlpha")
+            if (textAlpha > 0f) {
+                CurvedText(
+                    text = "ADD TO CART",
+                    buttonRadius = 22.5f,
+                    alpha = textAlpha,
+                    modifier = Modifier.size(90.dp)
+                )
+            }
+
+            IconButton(onClick = { onAddToCart(product) }, modifier = Modifier.fillMaxSize()) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.add_to_cart),
+                    tint = Ivory,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun CurvedText(
@@ -432,17 +536,17 @@ private fun CurvedText(
     val density = LocalDensity.current
     val textColor = DarkChestnut
 
-    Canvas(modifier = modifier) {
+    Canvas(modifier = modifier.offset(y = (-4).dp)) {
         val canvasWidth = size.width
         val canvasHeight = size.height
         val centerX = canvasWidth / 2
         val centerY = canvasHeight / 2
 
         // Convert button radius from dp to px
-        val radiusPx = with(density) { (buttonRadius + 15).dp.toPx() }
+        val radiusPx = with(density) { (buttonRadius).dp.toPx() }
 
         val path = Path().apply {
-            val startAngle = PI.toFloat() * 0.8f // Start angle (slightly above left)
+            val startAngle = PI.toFloat() * 1.1f // Start angle (slightly above left)
             val sweepAngle = PI.toFloat() * 0.8f // Sweep angle (how much of the circle to cover)
 
             // Add arc to path
@@ -464,15 +568,13 @@ private fun CurvedText(
                 textSize = with(density) { 6.sp.toPx() }
                 typeface = Typeface.DEFAULT_BOLD
                 isAntiAlias = true
-
                 letterSpacing = 0.05f
+                textAlign = android.graphics.Paint.Align.CENTER
             }
             paint.alpha = (alpha * 255).toInt()
-            drawTextOnPath(text, path.asAndroidPath(), 0f, -8f, paint)
+            drawTextOnPath(text, path.asAndroidPath(), 0f, -10f, paint)
         }
-
     }
-
 }
 
 private class NotchedLabelShape(private val notchRadius: Float) : Shape {
