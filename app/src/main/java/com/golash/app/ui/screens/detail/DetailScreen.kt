@@ -38,13 +38,17 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -94,11 +98,14 @@ import com.golash.app.ui.screens.cart.CartViewModel
 import com.golash.app.ui.theme.CrimsonText
 import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
+import com.golash.app.ui.theme.DeepOlive
 import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Inter
 import com.golash.app.ui.theme.Ivory
 import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Marcellus
+import com.golash.app.ui.theme.Oak
+import com.golash.app.ui.theme.WarmSand
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -108,6 +115,7 @@ import kotlin.math.absoluteValue
 private const val MIN_ALPHA = 0.5f
 private const val MAX_ALPHA = 1f
 private const val PAGER_ASPECT_RATIO = 1f
+
 
 
 @Composable
@@ -122,7 +130,6 @@ fun DetailScreen(
 
     LaunchedEffect(addToCartResult) {
         addToCartResult?.let { result ->
-
             when (result) {
                 is AddToCartResult.Success -> {
                     scope.launch { snackbarHostState.showSnackbar("Added to cart! :)") }
@@ -137,7 +144,12 @@ fun DetailScreen(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { paddingValues ->
+    Scaffold(snackbarHost = {
+        SnackbarHost(
+            hostState = snackbarHostState,
+            snackbar = { snackbarData -> CustomSnackbar(snackbarData) }
+        )
+    }) { paddingValues ->
         when (val state = detailUiState) {
             is DetailUiState.Success ->
                 DetailContent(
@@ -592,3 +604,34 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
     }
 }
 
+@Composable
+fun CustomSnackbar(
+    snackbarData: SnackbarData,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .padding(10.dp)
+            .clip(RoundedCornerShape(12.dp)),
+        color = DeepOlive,
+        shadowElevation = 4.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.ShoppingCart,
+                contentDescription = null,
+                tint = Ivory
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = snackbarData.visuals.message,
+                color = Ivory,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
