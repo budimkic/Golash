@@ -89,17 +89,15 @@ private fun HomeContent(
     var showCard by remember { mutableStateOf(false) }
     var showProducts by remember { mutableStateOf(false) }
 
-    // Handle initial animation
     LaunchedEffect(Unit) {
         if (!initialAnimationState) {
             showText = true
-            delay(1000) // Show logo and text first
+            delay(1000)
             showCard = true
             delay(200)
             initialAnimationState = true
             showProducts = true
         } else {
-            // Skip animation if we've already shown it
             showText = true
             showCard = true
             showProducts = true

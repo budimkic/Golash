@@ -41,6 +41,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -87,6 +89,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -117,7 +120,6 @@ private const val MAX_ALPHA = 1f
 private const val PAGER_ASPECT_RATIO = 1f
 
 
-
 @Composable
 fun DetailScreen(
     detailViewModel: DetailViewModel = hiltViewModel(),
@@ -143,7 +145,6 @@ fun DetailScreen(
             }
         }
     }
-
     Scaffold(snackbarHost = {
         SnackbarHost(
             hostState = snackbarHostState,
@@ -305,20 +306,8 @@ private fun DetailContent(
 
                 }
 
-
                 if (showDescriptionDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showDescriptionDialog = false },
-                        confirmButton = {
-                            TextButton(
-                                onClick = { showDescriptionDialog = false }
-                            ) {
-                                Text(stringResource(R.string.close))
-                            }
-                        },
-                        title = { Text(stringResource(R.string.description)) },
-                        text = { Text(product.description) }
-                    )
+                    CustomDialog(product, onDismissRequest = { showDescriptionDialog = false })
                 }
 
                 Box(
@@ -632,6 +621,59 @@ fun CustomSnackbar(
                 color = Ivory,
                 style = MaterialTheme.typography.bodyMedium
             )
+        }
+    }
+}
+
+@Composable
+fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Linen),
+            color = Linen,
+            shadowElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.description),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = DeepBark,
+                    fontFamily = Marcellus,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Text(
+                    text = product.description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = DeepBark.copy(alpha = 0.9f),
+                    fontFamily = CrimsonText,
+                    lineHeight = 24.sp
+                )
+                Spacer(Modifier.height(24.dp))
+                Button(
+                    onClick = onDismissRequest,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = DarkChestnut
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.close),
+                        color = Ivory,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
         }
     }
 }
