@@ -93,9 +93,9 @@ private fun HomeContent(
     LaunchedEffect(Unit) {
         if (!initialAnimationState) {
             showText = true
-            delay(2000) // Show logo and text first
+            delay(1000) // Show logo and text first
             showCard = true
-            delay(500)
+            delay(200)
             initialAnimationState = true
             showProducts = true
         } else {
@@ -117,7 +117,7 @@ private fun HomeContent(
         AnimatedVisibility(
             visible = showText,
             enter = if (!initialAnimationState)
-                fadeIn(animationSpec = tween(3300))
+                fadeIn(animationSpec = tween(2000))
             else
                 fadeIn(tween(0))
         ) {
@@ -133,7 +133,7 @@ private fun HomeContent(
         AnimatedVisibility(
             visible = showText,
             enter = if (!initialAnimationState)
-                fadeIn(animationSpec = tween(3300))
+                fadeIn(animationSpec = tween(3000))
             else fadeIn(tween(0))
         ) {
             Text(
@@ -161,7 +161,7 @@ private fun HomeContent(
                 AnimatedVisibility(
                     visible = showCard,
                     enter = if (!initialAnimationState)
-                        fadeIn(animationSpec = tween(2800))
+                        fadeIn(animationSpec = tween(1400))
                     else fadeIn(tween(0))
                 ) {
                     RotatingProductCard(
