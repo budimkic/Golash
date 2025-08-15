@@ -84,7 +84,7 @@ It provides a seamless shopping experience with elegant UI, smooth animations, a
 This project is dual-licensed:
 
 - **Non-Commercial License (default)** – You may view, study, and fork this repository for personal learning or portfolio purposes. Commercial use is **not allowed**.  
-- **Commercial License** – A separate license is available for commercial use. To obtain one, contact: [your email or website].  
+- **Commercial License** – A separate license is available for commercial use. To obtain one, contact: budimkic@proton.me.  
 
 Full details are in the [LICENSE.txt](LICENSE.txt) file.
 ---
