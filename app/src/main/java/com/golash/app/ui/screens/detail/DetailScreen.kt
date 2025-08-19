@@ -4,6 +4,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.util.Log
 import android.view.ViewConfiguration
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -12,17 +13,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,24 +31,16 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarData
@@ -59,7 +48,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -84,13 +72,11 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -109,20 +95,13 @@ import com.golash.app.ui.theme.CrimsonText
 import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.DeepOlive
-import com.golash.app.ui.theme.EarthBrown
-import com.golash.app.ui.theme.Inter
 import com.golash.app.ui.theme.Ivory
 import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Marcellus
-import com.golash.app.ui.theme.Oak
-import com.golash.app.ui.theme.WarmSand
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.absoluteValue
-import androidx.compose.animation.core.Animatable
-import kotlin.coroutines.coroutineContext
 
 
 private const val MIN_ALPHA = 0.5f
@@ -155,6 +134,8 @@ fun DetailScreen(
             }
         }
     }
+
+
     Scaffold(snackbarHost = {
         SnackbarHost(
             hostState = snackbarHostState,
@@ -163,11 +144,13 @@ fun DetailScreen(
     }
     ) { paddingValues ->
         when (val state = detailUiState) {
-            is DetailUiState.Success ->
+            is DetailUiState.Success -> {
                 DetailContent(
                     modifier = Modifier.padding(paddingValues),
                     product = state.product,
-                    onAddToCart = { product: Product -> cartViewModel.addToCart(product) })
+                    onAddToCart = { product: Product -> cartViewModel.addToCart(product) }
+                )
+            }
 
             is DetailUiState.Loading -> {}
             is DetailUiState.Error -> {}
@@ -182,16 +165,6 @@ private fun DetailContent(
     onAddToCart: (Product) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { product.images.size })
-    var showCurvedText by remember { mutableStateOf(false) }
-    val textAlpha by animateFloatAsState(
-        targetValue = if (showCurvedText) 1f else 0f,
-        animationSpec = tween(durationMillis = 500),
-        label = "textAlpha"
-    )
-
-    val scope = rememberCoroutineScope()
-    val pulseScale = remember { androidx.compose.animation.core.Animatable(1f) }
-
     var showDescriptionDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -208,7 +181,6 @@ private fun DetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(PAGER_ASPECT_RATIO)
-
             ) {
                 HorizontalPager(
                     state = pagerState, userScrollEnabled = true, modifier = Modifier.fillMaxSize()
@@ -248,11 +220,10 @@ private fun DetailContent(
                 }
             }
 
-            // Product Information Card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
+                    .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -278,8 +249,6 @@ private fun DetailContent(
                     )
                 }
 
-
-                // Simple underline
                 Box(
                     modifier = Modifier
                         .width(40.dp)
@@ -287,10 +256,6 @@ private fun DetailContent(
                         .background(DeepBark.copy(alpha = 0.3f))
                         .padding(bottom = 16.dp)
                 )
-
-                //var expanded by remember { mutableStateOf(false) }
-                //val maxLines = if (expanded) Int.MAX_VALUE else 3
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -299,7 +264,6 @@ private fun DetailContent(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
 
                     Text(
                         text = product.description,
@@ -314,126 +278,34 @@ private fun DetailContent(
                         textAlign = TextAlign.Center,
                         letterSpacing = 0.1.sp,
                     )
-
-
                 }
 
                 if (showDescriptionDialog) {
                     CustomDialog(product, onDismissRequest = { showDescriptionDialog = false })
                 }
 
-
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                /*    Box(
-                        modifier = Modifier
-                            .size(90.dp)
-                            .padding(top = 15.dp)
-                    ) {
-                        //TODO Fix curved text
-                           if (textAlpha > 0f) {
-                               CurvedText(
-                                   text = "ADD TO CART",
-                                   buttonRadius = 22.5f,
-                                   alpha = textAlpha,
-                                   modifier = Modifier.size(90.dp)
-                               )
-                           }
-
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .scale(pulseScale.value)
-                                .align(Alignment.Center)
-                                .background(color = DarkChestnut, shape = CircleShape)
-                                .pointerInput(Unit) {
-                                    awaitEachGesture {
-                                        val down = awaitFirstDown()
-                                        var longPressJob: Job? = null
-                                        var longPressed = false
-
-                                        // Start pulse on press
-                                        scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
-
-                                        longPressJob = scope.launch {
-                                            delay(ViewConfiguration.getLongPressTimeout().toLong())
-                                            longPressed = true
-                                            showCurvedText = true
-                                        }
-
-                                        val up = waitForUpOrCancellation()
-                                        longPressJob.cancel()
-
-                                        if (up == null) {
-                                            // Gesture was cancelled, animate back
-                                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                            showCurvedText = false
-                                            return@awaitEachGesture
-                                        }
-
-                                        if (!longPressed) {
-                                            // TAP: quick pulse, add to cart
-                                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                            onAddToCart(product)
-                                            showCurvedText = false
-                                        } else {
-                                            // LONG PRESS: animate back, keep text visible until release
-                                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                                            showCurvedText = false
-                                        }
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = stringResource(R.string.add_to_cart),
-                                tint = Ivory,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }*/
             }
-
         }
-
-        /*  Row(
-              modifier = Modifier
-                  .align(Alignment.BottomCenter)
-                  .fillMaxWidth()
-                  .padding(horizontal = 20.dp, vertical = 2.dp),
-              horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = Alignment.CenterVertically
-          ) {
-
-
-
-
-          }*/
-
-        CartFooter(product, onAddToCart, textAlpha)
+        CartFooter(product, onAddToCart)
     }
 }
 
 @Composable
-private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit, textAlpha: Float) {
-
+private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit) {
     val scope = rememberCoroutineScope()
     val pulseScale = remember { Animatable(1f) }
     var showCurvedText by remember { mutableStateOf(false) }
 
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            .padding(bottom = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Box(
             modifier = Modifier
-                .padding(2.dp)
                 .background(
                     color = DarkChestnut,
                     shape = NotchedLabelShape(notchRadius = 14f),
@@ -450,76 +322,58 @@ private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit, textAlp
                 fontFamily = Marcellus
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        //TODO Fix curved text
-
+        Spacer(modifier = Modifier.height(20.dp))
 
         Box(
             modifier = Modifier
                 .size(48.dp)
                 .scale(pulseScale.value)
-                .background(color = DarkChestnut, shape = CircleShape)
-                .pointerInput(Unit) {
-                    Log.d("DetailScreen", "Pointer Input Log Start")
+                .background(DarkChestnut, CircleShape)
+                .pointerInput(product) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
-                        var longPressJob: Job? = null
                         var longPressed = false
 
-                        // Start pulse on press
-                        scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
-
-                        longPressJob = scope.launch {
+                        val longPressJob = scope.launch {
                             delay(ViewConfiguration.getLongPressTimeout().toLong())
                             longPressed = true
                             showCurvedText = true
                         }
 
+                        // Start pulse immediately
+                        scope.launch { pulseScale.animateTo(1.15f, tween(100)) }
+
                         val up = waitForUpOrCancellation()
                         longPressJob.cancel()
 
-                        if (up == null) {
-                            // Gesture was cancelled, animate back
-                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                            showCurvedText = false
-                            return@awaitEachGesture
-                        }
+                        // Animate back to normal
+                        scope.launch { pulseScale.animateTo(1f, tween(300)) }
 
-                        if (!longPressed) {
-                            // TAP: quick pulse, add to cart
-                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
+                        if (up != null && !longPressed) {
+                            // Tap detected
                             onAddToCart(product)
-                            showCurvedText = false
-                        } else {
-                            // LONG PRESS: animate back, keep text visible until release
-                            scope.launch { pulseScale.animateTo(1f, tween(300)) }
-                            showCurvedText = false
                         }
-                        Log.d("DetailScreen", "Pointer Input Log End")
-                    }
-                }
 
+                        showCurvedText = false
+                    }
+                },
+            contentAlignment = Alignment.Center
         ) {
-            //TODO DetailScreen gets called recursively?
-            Log.d("DetailScreen", "TextAlpha Log $textAlpha")
-            if (textAlpha > 0f) {
+            if (showCurvedText) {
                 CurvedText(
                     text = "ADD TO CART",
-                    buttonRadius = 22.5f,
-                    alpha = textAlpha,
+                    buttonRadius = 24f,
+                    alpha = 1f,
                     modifier = Modifier.size(90.dp)
                 )
             }
 
-            IconButton(onClick = { onAddToCart(product) }, modifier = Modifier.fillMaxSize()) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(R.string.add_to_cart),
-                    tint = Ivory,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add to cart",
+                tint = Ivory,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -572,7 +426,7 @@ private fun CurvedText(
                 textAlign = android.graphics.Paint.Align.CENTER
             }
             paint.alpha = (alpha * 255).toInt()
-            drawTextOnPath(text, path.asAndroidPath(), 0f, -10f, paint)
+            drawTextOnPath(text, path.asAndroidPath(), 0f, 0f, paint)
         }
     }
 }
@@ -667,7 +521,6 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
                             .fillMaxWidth()
                             .aspectRatio(1f),
                         contentScale = ContentScale.Fit
-                        // fit entire image, no cropping
                     )
                 } ?: Log.e(
                     "RotatingProductCard",
@@ -681,17 +534,10 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
                         .fillMaxWidth()
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(20.dp)),
-                    contentScale = ContentScale.Fit // keep full image visible
+                    contentScale = ContentScale.Fit
                 )
             }
         }
-
-
-        /* AsyncImage(
-             model = product.images[page],
-             contentDescription = "",
-             modifier = Modifier.fillMaxWidth(),
-         )*/
     }
 }
 
