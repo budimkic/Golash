@@ -79,7 +79,7 @@ fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
 
         is CartState.Success -> {
             val cart = (cartState as CartState.Success).cart
-            CartContent(cart = cart, onRemove = {})
+            CartContent(cart = cart, onRemove = {}, cartViewModel)
         }
 
         is CartState.Error -> {
@@ -100,7 +100,7 @@ fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun CartContent(cart: Cart, onRemove: (String) -> Unit) {
+private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: CartViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -143,7 +143,8 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit) {
                     val cartItem = cart.items[index]
                     CartItemRow(
                         cartItem = cartItem,
-                        onRemove = {}, onQuantityChange = {})
+                        onIncreaseQuantity = { cartViewModel.increaseQuantity(cartItem.product) },
+                        onDecreaseQuantity = { cartViewModel.decreaseQuantity(cartItem.product) })
                 }
             }
         }
@@ -156,7 +157,11 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit) {
 
 
 @Composable
-private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChange: (Int) -> Unit) {
+private fun CartItemRow(
+    cartItem: CartItem,
+    onIncreaseQuantity: () -> Unit,
+    onDecreaseQuantity: () -> Unit
+) {
 
     Box(
         modifier = Modifier
@@ -202,8 +207,6 @@ private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChan
                             .clip(RoundedCornerShape(16.dp)),
                     )
                 }
-
-
             }
 
             Spacer(Modifier.width(12.dp))
@@ -225,7 +228,7 @@ private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChan
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = { onQuantityChange(cartItem.quantity - 1) },
+                        onClick = { onDecreaseQuantity() },
                         enabled = cartItem.quantity > 1
                     ) {
                         Text(
@@ -235,8 +238,9 @@ private fun CartItemRow(cartItem: CartItem, onRemove: () -> Unit, onQuantityChan
                             fontFamily = Marcellus
                         )
                     }
+                    Log.d("CartScreen", "${cartItem.quantity}")
                     Text("${cartItem.quantity}", Modifier, color = DeepBark, fontFamily = Marcellus)
-                    IconButton(onClick = { onQuantityChange(cartItem.quantity + 1) }) {
+                    IconButton(onClick = { onIncreaseQuantity() }) {
                         Text(
                             "+",
                             fontWeight = FontWeight.Bold,

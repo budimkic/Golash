@@ -108,6 +108,7 @@ private const val MIN_ALPHA = 0.5f
 private const val MAX_ALPHA = 1f
 private const val PAGER_ASPECT_RATIO = 1f
 
+//TODO Complete add-to-cart functionality & Full Description (maybe add zoom on images)
 
 @Composable
 fun DetailScreen(
@@ -377,7 +378,6 @@ private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit) {
         }
     }
 }
-
 
 @Composable
 private fun CurvedText(

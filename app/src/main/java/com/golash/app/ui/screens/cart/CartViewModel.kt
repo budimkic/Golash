@@ -2,11 +2,13 @@ package com.golash.app.ui.screens.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.golash.app.data.model.Cart
 import com.golash.app.data.model.Product
 import com.golash.app.data.repository.cart.CartRepository
 import com.golash.app.data.repository.cart.InMemoryCartRepository
 import com.golash.app.manager.CartManager
+import com.golash.app.ui.navigation.Destination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +33,7 @@ sealed class AddToCartResult {
 class CartViewModel @Inject constructor(
     private val cartManager: CartManager
 ) : ViewModel() {
- 
+
     private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
     val cartState: StateFlow<CartState> = _cartState
 
@@ -39,7 +41,7 @@ class CartViewModel @Inject constructor(
     val addToCartResult: SharedFlow<AddToCartResult> = _addToCartResult
 
     init {
-        loadCart()
+        viewModelScope.launch { loadCart() }
     }
 
     fun addToCart(product: Product) {
@@ -49,28 +51,49 @@ class CartViewModel @Inject constructor(
                 cartManager.addItem(product)
                 _addToCartResult.emit(AddToCartResult.Success)
                 loadCart()
-
-                ///TODO Emit Success after loadCart() completes, by making loadCart() a suspend function and calling it with await.
             } catch (e: Exception) {
                 _addToCartResult.emit(AddToCartResult.Error(e.message ?: "Unknown error"))
             }
         }
     }
 
-    private fun loadCart() {
+    fun increaseQuantity(product: Product) {
         viewModelScope.launch {
             _cartState.value = CartState.Loading
             try {
-                val cart = cartManager.loadCart()
-                _cartState.value = CartState.Success(cart)
+                cartManager.increaseQuantity(product)
+                loadCart()
             } catch (e: Exception) {
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
         }
     }
 
-     fun refresh(){
-        loadCart()
+    fun decreaseQuantity(product: Product) {
+        viewModelScope.launch {
+            _cartState.value = CartState.Loading
+            try {
+                cartManager.decreaseQuantity(product)
+                loadCart()
+            } catch (e: Exception) {
+                _cartState.value = CartState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    private suspend fun loadCart() {
+        return try {
+            val cart = cartManager.loadCart()
+            _cartState.value = CartState.Success(cart)
+
+        } catch (e: Exception) {
+            _cartState.value = CartState.Error(e.message ?: "Unknown error")
+            throw e
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch { loadCart() }
     }
 
     fun clearCart() {
