@@ -7,10 +7,19 @@ import com.golash.app.data.model.Product
 import com.golash.app.data.repository.cart.CartRepository
 import javax.inject.Inject
 
+/**
+ * Single source of truth for the shopping cart.
+ *
+ * Responsibilities:
+ *  - Caches cart in memory to avoid repeated repository calls.
+ *  - All mutations must go through [updateCart] to stay in sync with repository.
+ **/
 class CartManager @Inject constructor(private val cartRepository: CartRepository) {
 
-    private var currentCart : Cart? = null
+    // Lazily loaded cart cache; null until first access.
+    private var currentCart: Cart? = null
 
+    // Guarantees a loaded, non-null cart for callers.
     private suspend fun ensureCartLoaded(): Cart {
         if (currentCart == null) {
             currentCart = cartRepository.loadCart()
@@ -47,6 +56,7 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
         updateCart(Cart(updatedItems))
     }
 
+    // Remove item entirely if quantity drops below 1.
     suspend fun decreaseQuantity(product: Product){
         val cart  = ensureCartLoaded()
         var updatedCart = cart.items.map {
@@ -62,6 +72,7 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
 
    suspend fun getCart(): Cart = ensureCartLoaded()
 
+    // All cart mutations must pass through here to keep cache and repository consistent.
     private suspend fun updateCart(updatedCart: Cart) {
         currentCart = updatedCart
         cartRepository.saveCart(updatedCart)
