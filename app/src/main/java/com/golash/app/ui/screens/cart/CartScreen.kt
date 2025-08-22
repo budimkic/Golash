@@ -238,7 +238,9 @@ private fun CartItemRow(
                         )
                     }
                     Text("${cartItem.quantity}", Modifier, color = DeepBark, fontFamily = Marcellus)
-                    IconButton(onClick = { onIncreaseQuantity() }) {
+                    IconButton(onClick = { onIncreaseQuantity() },
+                        enabled = cartItem.quantity < 5
+                    ) {
                         Text(
                             "+",
                             fontWeight = FontWeight.Bold,
