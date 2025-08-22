@@ -43,9 +43,8 @@ fun GolashMainScreen(modifier: Modifier = Modifier) {
                         onClick = {
                             navController.navigate(route = destination.route) {
                                 launchSingleTop = true
-                                restoreState = true
                                 popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+                                    inclusive = false
                                 }
                             }
                             selectedDestination = index
