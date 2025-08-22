@@ -60,7 +60,6 @@ class CartViewModel @Inject constructor(
 
     fun increaseQuantity(product: Product) {
         viewModelScope.launch {
-            _cartState.value = CartState.Loading
             try {
                 cartManager.increaseQuantity(product)
                 _cartState.value = CartState.Success(cartManager.getCart())
@@ -72,7 +71,6 @@ class CartViewModel @Inject constructor(
 
     fun decreaseQuantity(product: Product) {
         viewModelScope.launch {
-            _cartState.value = CartState.Loading
             try {
                 cartManager.decreaseQuantity(product)
                 _cartState.value = CartState.Success(cartManager.getCart())
