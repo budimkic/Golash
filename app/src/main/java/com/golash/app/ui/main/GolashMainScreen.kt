@@ -41,14 +41,14 @@ fun GolashMainScreen(modifier: Modifier = Modifier) {
                     NavigationBarItem(
                         selected = isSelected,
                         onClick = {
-                            navController.navigate(route = destination.route) {
-                                //launchSingleTop = true
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                            if (!isSelected) {
+                                navController.navigate(route = destination.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
                                 }
-                                launchSingleTop = true
                             }
-
                         },
                         icon = {
                             destination.icon?.let { icon ->
