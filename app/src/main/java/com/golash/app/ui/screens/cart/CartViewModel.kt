@@ -1,5 +1,6 @@
 package com.golash.app.ui.screens.cart
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,7 +63,7 @@ class CartViewModel @Inject constructor(
             _cartState.value = CartState.Loading
             try {
                 cartManager.increaseQuantity(product)
-                loadCart()
+                _cartState.value = CartState.Success(cartManager.getCart())
             } catch (e: Exception) {
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
@@ -74,7 +75,7 @@ class CartViewModel @Inject constructor(
             _cartState.value = CartState.Loading
             try {
                 cartManager.decreaseQuantity(product)
-                loadCart()
+                _cartState.value = CartState.Success(cartManager.getCart())
             } catch (e: Exception) {
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
@@ -85,7 +86,6 @@ class CartViewModel @Inject constructor(
         return try {
             val cart = cartManager.loadCart()
             _cartState.value = CartState.Success(cart)
-
         } catch (e: Exception) {
             _cartState.value = CartState.Error(e.message ?: "Unknown error")
             throw e

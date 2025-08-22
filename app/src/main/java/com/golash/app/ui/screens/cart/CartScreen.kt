@@ -64,6 +64,7 @@ import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Marcellus
 import com.golash.app.ui.theme.Oak
 import com.golash.app.ui.theme.RawCotton
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
@@ -139,8 +140,7 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: C
                     .height(50.dp)
                     .weight(1f)
             ) {
-                items(cart.totalItems) { index ->
-                    val cartItem = cart.items[index]
+                items(cart.items) { cartItem ->
                     CartItemRow(
                         cartItem = cartItem,
                         onIncreaseQuantity = { cartViewModel.increaseQuantity(cartItem.product) },
@@ -238,7 +238,6 @@ private fun CartItemRow(
                             fontFamily = Marcellus
                         )
                     }
-                    Log.d("CartScreen", "${cartItem.quantity}")
                     Text("${cartItem.quantity}", Modifier, color = DeepBark, fontFamily = Marcellus)
                     IconButton(onClick = { onIncreaseQuantity() }) {
                         Text(
