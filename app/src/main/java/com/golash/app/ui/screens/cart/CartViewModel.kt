@@ -1,15 +1,10 @@
 package com.golash.app.ui.screens.cart
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.golash.app.data.model.Cart
 import com.golash.app.data.model.Product
-import com.golash.app.data.repository.cart.CartRepository
-import com.golash.app.data.repository.cart.InMemoryCartRepository
 import com.golash.app.manager.CartManager
-import com.golash.app.ui.navigation.Destination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,6 +51,10 @@ class CartViewModel @Inject constructor(
                 _addToCartResult.emit(AddToCartResult.Error(e.message ?: "Unknown error"))
             }
         }
+    }
+
+   suspend fun getProductQuantity(product: Product): Int {
+        return cartManager.getQuantity(product)
     }
 
     fun increaseQuantity(product: Product) {

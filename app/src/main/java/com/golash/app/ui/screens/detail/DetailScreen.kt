@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.util.Log
 import android.view.ViewConfiguration
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -124,7 +123,9 @@ fun DetailScreen(
         addToCartResult?.let { result ->
             when (result) {
                 is AddToCartResult.Success -> {
-                    scope.launch { snackbarHostState.showSnackbar("Added to cart! :)") }
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Added to cart! :)")
+                    }
                 }
 
                 is AddToCartResult.Error -> {
@@ -149,7 +150,16 @@ fun DetailScreen(
                 DetailContent(
                     modifier = Modifier.padding(paddingValues),
                     product = state.product,
-                    onAddToCart = { product: Product -> cartViewModel.addToCart(product) }
+                    onAddToCart = { product: Product ->
+                        scope.launch {
+                            val quantity = cartViewModel.getProductQuantity(product)
+                            if (quantity < 5) {
+                                cartViewModel.addToCart(product)
+                            } else {
+                                snackbarHostState.showSnackbar("Maximum quantity (5) reached!")
+                            }
+                        }
+                    }
                 )
             }
 

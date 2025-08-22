@@ -1,6 +1,5 @@
 package com.golash.app.data.repository.cart
 
-import android.util.Log
 import com.golash.app.data.db.AppDatabase
 import com.golash.app.data.mapper.toCartItem
 import com.golash.app.data.mapper.toEntity

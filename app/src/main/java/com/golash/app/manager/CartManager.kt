@@ -31,10 +31,11 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
         return currentCart!!
     }
 
+
     suspend fun addItem(product: Product) {
         val cart = ensureCartLoaded()
-
         if (cart.items.any { it.product.id == product.id }) {
+            increaseQuantity(product)
             return
         }
         val updatedCart = cart.items + CartItem(product, 1)
@@ -50,16 +51,16 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
     suspend fun increaseQuantity(product: Product) {
         val cart = ensureCartLoaded()
         val updatedCart = cart.items.map {
-            if (it.product.id == product.id) it.copy(quantity = it.quantity + 1) else it
+            if (it.product.id == product.id && it.quantity < 5) it.copy(quantity = it.quantity + 1) else it
         }
         updateCart(Cart(updatedCart))
     }
 
     // Remove item entirely if quantity drops below 1.
-    suspend fun decreaseQuantity(product: Product){
-        val cart  = ensureCartLoaded()
+    suspend fun decreaseQuantity(product: Product) {
+        val cart = ensureCartLoaded()
         var updatedCart = cart.items.map {
-            if(it.product.id == product.id) it.copy(quantity = it.quantity - 1) else it
+            if (it.product.id == product.id) it.copy(quantity = it.quantity - 1) else it
         }.filter { it.quantity > 0 }
 
         updateCart(Cart(updatedCart))
@@ -69,11 +70,19 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
         updateCart(Cart(emptyList()))
     }
 
-   suspend fun getCart(): Cart = ensureCartLoaded()
+    suspend fun getCart(): Cart = ensureCartLoaded()
 
     // All cart mutations must pass through here to keep cache and repository consistent.
     private suspend fun updateCart(updatedCart: Cart) {
         currentCart = updatedCart
         cartRepository.saveCart(updatedCart)
     }
+
+    suspend fun getQuantity(product: Product): Int {
+        val cart = ensureCartLoaded()
+        return cart.items.find {
+            it.product.id == product.id
+        }?.quantity ?: 0
+    }
+
 }

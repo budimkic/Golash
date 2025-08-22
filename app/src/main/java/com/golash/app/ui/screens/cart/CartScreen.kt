@@ -3,7 +3,6 @@ package com.golash.app.ui.screens.cart
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,18 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -50,21 +44,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.golash.app.R
 import com.golash.app.data.model.Cart
 import com.golash.app.data.model.CartItem
-import com.golash.app.data.model.Product
-import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
-import com.golash.app.ui.theme.DeepOlive
 import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Ivory
 import com.golash.app.ui.theme.Linen
 import com.golash.app.ui.theme.Marcellus
-import com.golash.app.ui.theme.Oak
-import com.golash.app.ui.theme.RawCotton
-import androidx.compose.foundation.lazy.items
 
 @Composable
 fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
@@ -238,8 +225,7 @@ private fun CartItemRow(
                         )
                     }
                     Text("${cartItem.quantity}", Modifier, color = DeepBark, fontFamily = Marcellus)
-                    IconButton(onClick = { onIncreaseQuantity() },
-                        enabled = cartItem.quantity < 5
+                    IconButton(onClick = { onIncreaseQuantity() }
                     ) {
                         Text(
                             "+",

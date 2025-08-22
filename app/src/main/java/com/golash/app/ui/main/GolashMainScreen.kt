@@ -10,12 +10,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.golash.app.ui.navigation.AppNavHost
 import com.golash.app.ui.navigation.Destination
@@ -28,26 +27,28 @@ import com.golash.app.ui.theme.WarmSand
 @Composable
 fun GolashMainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    var selectedDestination by rememberSaveable {
-        mutableIntStateOf(0)
-    }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
         modifier = modifier, bottomBar = {
             NavigationBar(
                 containerColor = WarmSand, windowInsets = NavigationBarDefaults.windowInsets
             ) {
-                Destination.bottomNavDestinations.forEachIndexed { index, destination ->
+                Destination.bottomNavDestinations.forEach { destination ->
+                    val isSelected = currentRoute == destination.route
+
                     NavigationBarItem(
-                        selected = selectedDestination == index,
+                        selected = isSelected,
                         onClick = {
                             navController.navigate(route = destination.route) {
-                                launchSingleTop = true
-                                popUpTo(navController.graph.startDestinationId) {
-                                    inclusive = false
+                                //launchSingleTop = true
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
                                 }
+                                launchSingleTop = true
                             }
-                            selectedDestination = index
+
                         },
                         icon = {
                             destination.icon?.let { icon ->
