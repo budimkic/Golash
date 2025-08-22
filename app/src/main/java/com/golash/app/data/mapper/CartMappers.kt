@@ -13,7 +13,7 @@ fun CartItemEntity.toCartItem(): CartItem {
             price = price,
               images = images
         ),
-        quantity = 1
+        quantity = quantity
     )
 }
 
@@ -23,6 +23,7 @@ fun CartItem.toEntity(): CartItemEntity {
         name = product.name,
         price = product.price,
         productDescription = product.description,
-        images = product.images
+        images = product.images,
+        quantity = quantity
     )
 }

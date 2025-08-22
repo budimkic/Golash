@@ -1,6 +1,5 @@
 package com.golash.app.manager
 
-import android.util.Log
 import com.golash.app.data.model.Cart
 import com.golash.app.data.model.CartItem
 import com.golash.app.data.model.Product
@@ -38,22 +37,22 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
         if (cart.items.any { it.product.id == product.id }) {
             return
         }
-        val updatedItems = cart.items + CartItem(product, 1)
-        updateCart(Cart(updatedItems))
+        val updatedCart = cart.items + CartItem(product, 1)
+        updateCart(Cart(updatedCart))
     }
 
     suspend fun removeItem(productId: String) {
         val cart = ensureCartLoaded()
-        val updatedItems = cart.items.filterNot { it.product.id == productId }
-        updateCart(Cart(updatedItems))
+        val updatedCart = cart.items.filterNot { it.product.id == productId }
+        updateCart(Cart(updatedCart))
     }
 
     suspend fun increaseQuantity(product: Product) {
         val cart = ensureCartLoaded()
-        val updatedItems = cart.items.map {
+        val updatedCart = cart.items.map {
             if (it.product.id == product.id) it.copy(quantity = it.quantity + 1) else it
         }
-        updateCart(Cart(updatedItems))
+        updateCart(Cart(updatedCart))
     }
 
     // Remove item entirely if quantity drops below 1.
