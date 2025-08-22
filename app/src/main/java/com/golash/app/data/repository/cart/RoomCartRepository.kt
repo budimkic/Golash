@@ -1,5 +1,6 @@
 package com.golash.app.data.repository.cart
 
+import android.util.Log
 import com.golash.app.data.db.AppDatabase
 import com.golash.app.data.mapper.toCartItem
 import com.golash.app.data.mapper.toEntity
@@ -10,6 +11,7 @@ class RoomCartRepository(db: AppDatabase) : CartRepository {
     private val cartDao = db.cartDao()
 
     override suspend fun saveCart(cart: Cart) {
+        cartDao.clear()
         val entities = cart.items.map { it.toEntity() }
         cartDao.insertAll(entities)
     }

@@ -228,8 +228,7 @@ private fun CartItemRow(
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = { onDecreaseQuantity() },
-                        enabled = cartItem.quantity > 1
+                        onClick = { onDecreaseQuantity() }
                     ) {
                         Text(
                             "-",
