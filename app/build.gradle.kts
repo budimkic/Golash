@@ -100,9 +100,9 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     kapt(libs.moshi.kotlin.codegen)
+
     kapt(libs.asm)
     kapt(libs.asm.commons)
-
 
     // Core Library Desugaring for Java 8+ APIs on older Android versions
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")

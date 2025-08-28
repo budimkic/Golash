@@ -7,6 +7,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -91,7 +93,7 @@ fun RotatingProductCard(
         ) {
             AnimatedVisibility(
                 visible = visible,
-                enter = if (fadeInEnabled) fadeIn(tween(3000)) else fadeIn(tween(0))
+                enter = if (fadeInEnabled) fadeIn(tween(2500)) else fadeIn(tween(0))
             ) {
                 AnimatedContent(
                     targetState = product,
@@ -99,11 +101,13 @@ fun RotatingProductCard(
                         (slideInHorizontally(
                             initialOffsetX = { it },
                             animationSpec = tween(800, easing = FastOutSlowInEasing)
-                        ) + fadeIn(tween(800, easing = FastOutSlowInEasing))) togetherWith
+                        ) + fadeIn(tween(800, easing = FastOutSlowInEasing)) +
+                                scaleIn(initialScale = 0.95f, animationSpec = tween(800))) togetherWith
                                 (slideOutHorizontally(
                                     targetOffsetX = { -it },
                                     animationSpec = tween(800, easing = FastOutSlowInEasing)
-                                ) + fadeOut(tween(800, easing = FastOutSlowInEasing)))
+                                ) + fadeOut(tween(800, easing = FastOutSlowInEasing)) +
+                                        scaleOut(targetScale = 0.95f, animationSpec = tween(800)))
                     }
                 ) { animatedProduct ->
 
