@@ -76,8 +76,7 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     uiState: HomeUiState, onProductClick: (String) -> Unit,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltViewModel()
+    onRefresh: () -> Unit
 ) {
 
     val scrollState = rememberScrollState()

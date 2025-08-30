@@ -30,7 +30,7 @@ fun AppNavHost(
         composable(
             Destination.GALLERY.route
         ) {
-            GalleryScreen()
+            GalleryScreen(navController = navController)
         }
         composable(Destination.CART.route) {
             CartScreen()

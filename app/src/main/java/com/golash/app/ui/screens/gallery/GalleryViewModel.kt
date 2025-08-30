@@ -34,7 +34,7 @@ class GalleryViewModel @Inject constructor(private val repository: MockProductRe
                 val products = repository.getProducts()
                 _uiState.value = GalleryUIState.Success(products)
             } catch (e: Exception) {
-                _uiState.value = GalleryUIState.Error(e.message ?: "Unknown error occured")
+                _uiState.value = GalleryUIState.Error(e.message ?: "Unknown error occurred")
             }
         }
     }
