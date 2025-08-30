@@ -8,10 +8,11 @@ fun CartItemEntity.toCartItem(): CartItem {
     return CartItem(
         product = Product(
             id = productId,
-             name = name,
-            description = productDescription,
+            name = name,
+            shortDescription = productDescription,
+            details = details,
             price = price,
-              images = images
+            images = images
         ),
         quantity = quantity
     )
@@ -22,7 +23,8 @@ fun CartItem.toEntity(): CartItemEntity {
         productId = product.id,
         name = product.name,
         price = product.price,
-        productDescription = product.description,
+        productDescription = product.shortDescription,
+        details = product.details,
         images = product.images,
         quantity = quantity
     )

@@ -23,9 +23,17 @@ data class ProductImage(
 data class Product(
     val id: String,
     val name: String,
-    val description: String,
+    val shortDescription: String,
+    val details: ProductDetails,
     val price: Double,
     val images: List<ProductImage>
 ) {
     val primaryImage: ProductImage? get() = images.firstOrNull()
 }
+
+@JsonClass(generateAdapter = true)
+data class ProductDetails(
+    val size: String,
+    val careInstructions: String,
+    val materials: String
+)

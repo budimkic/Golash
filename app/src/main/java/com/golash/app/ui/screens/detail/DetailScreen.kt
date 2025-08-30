@@ -129,7 +129,10 @@ fun DetailScreen(
                 }
 
                 is AddToCartResult.Error -> {
-                    scope.launch { snackbarHostState.showSnackbar("Whoops, try again!") }
+                    scope.launch {
+                        Log.e("DetailScreen", result.message)
+                        snackbarHostState.showSnackbar("Whoops, try again!")
+                    }
                 }
 
                 else -> {}
@@ -252,7 +255,7 @@ private fun DetailContent(
 
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Show full description",
+                        contentDescription = "Show full shortDescription",
                         tint = DarkChestnut,
                         modifier = Modifier
                             .size(24.dp)
@@ -277,7 +280,7 @@ private fun DetailContent(
                 ) {
 
                     Text(
-                        text = product.description,
+                        text = product.shortDescription,
                         modifier = Modifier
                             .weight(1f, fill = true)
                             .wrapContentHeight(),
@@ -370,6 +373,7 @@ private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit) {
                 },
             contentAlignment = Alignment.Center
         ) {
+            //TODO Fix fade-in
             if (showCurvedText) {
                 CurvedText(
                     text = "ADD TO CART",
@@ -608,12 +612,39 @@ fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Text(
-                    text = product.description,
+                    text = product.shortDescription,
                     style = MaterialTheme.typography.bodyLarge,
                     color = DeepBark.copy(alpha = 0.9f),
                     fontFamily = CrimsonText,
                     lineHeight = 24.sp
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = product.details.size,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = DeepBark.copy(alpha = 0.9f),
+                    fontFamily = CrimsonText,
+                    lineHeight = 24.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = product.details.careInstructions,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = DeepBark.copy(alpha = 0.9f),
+                    fontFamily = CrimsonText,
+                    lineHeight = 24.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = product.details.materials,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = DeepBark.copy(alpha = 0.9f),
+                    fontFamily = CrimsonText,
+                    lineHeight = 24.sp
+                )
+
                 Spacer(Modifier.height(24.dp))
                 Button(
                     onClick = onDismissRequest,
