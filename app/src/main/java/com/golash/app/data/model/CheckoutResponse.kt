@@ -1,4 +1,3 @@
 package com.golash.app.data.model
 
-class CheckoutResponse {
-}
+data class CheckoutResponse(val success: Boolean, val message: String)
