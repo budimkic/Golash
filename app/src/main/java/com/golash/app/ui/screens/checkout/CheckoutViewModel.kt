@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed class CheckoutState {
     data object Idle : CheckoutState()
@@ -20,7 +21,7 @@ sealed class CheckoutState {
 
 
 @HiltViewModel
-class CheckoutViewModel : ViewModel() {
+class CheckoutViewModel @Inject constructor(): ViewModel() {
 
     private val _checkoutState = MutableStateFlow<CheckoutState>(CheckoutState.Idle)
     val checkoutState: StateFlow<CheckoutState> = _checkoutState
