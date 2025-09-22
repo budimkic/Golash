@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 object RetrofitInstance {
-    private const val BASE_URL = ""
+    private const val BASE_URL = "http://192.168.8.5:4000/"
 
     private val moshi = Moshi.Builder().build()
 
@@ -16,5 +16,4 @@ object RetrofitInstance {
             .build()
             .create(GolashApi::class.java)
     }
-
 }
