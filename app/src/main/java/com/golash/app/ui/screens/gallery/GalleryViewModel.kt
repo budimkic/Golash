@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class GalleryUIState {
+    data object Idle : GalleryUIState()
     data object Loading : GalleryUIState()
     data class Success(val products: List<Product>) : GalleryUIState()
     data class Error(val message: String) : GalleryUIState()
@@ -20,7 +21,7 @@ sealed class GalleryUIState {
 class GalleryViewModel @Inject constructor(private val repository: MockProductRepository) :
     ViewModel() {
 
-    private val _uiState = MutableStateFlow<GalleryUIState>(GalleryUIState.Loading)
+    private val _uiState = MutableStateFlow<GalleryUIState>(GalleryUIState.Idle)
     val uiState: StateFlow<GalleryUIState> = _uiState
 
     init {

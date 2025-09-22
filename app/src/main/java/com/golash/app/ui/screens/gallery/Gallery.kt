@@ -170,6 +170,7 @@ private fun GalleryContent(
             }
 
             is GalleryUIState.Error -> {}
+            is GalleryUIState.Idle -> {}
         }
     }
 }

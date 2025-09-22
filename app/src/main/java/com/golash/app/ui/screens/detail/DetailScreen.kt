@@ -108,7 +108,6 @@ private const val MAX_ALPHA = 1f
 private const val PAGER_ASPECT_RATIO = 1f
 
 //TODO Complete add-to-cart functionality & Full Description (maybe add zoom on images)
-
 @Composable
 fun DetailScreen(
     detailViewModel: DetailViewModel = hiltViewModel(),
@@ -168,6 +167,7 @@ fun DetailScreen(
 
             is DetailUiState.Loading -> {}
             is DetailUiState.Error -> {}
+            is DetailUiState.Idle -> {}
         }
     }
 }
@@ -556,7 +556,7 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
 }
 
 @Composable
-fun CustomSnackbar(
+private fun CustomSnackbar(
     snackbarData: SnackbarData,
     modifier: Modifier = Modifier
 ) {
@@ -588,7 +588,7 @@ fun CustomSnackbar(
 }
 
 @Composable
-fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
+private fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)

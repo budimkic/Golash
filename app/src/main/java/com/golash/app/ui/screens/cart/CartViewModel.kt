@@ -14,12 +14,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class CartState {
+    data object Idle : CartState()
     data object Loading : CartState()
     data class Success(val cart: Cart) : CartState()
     data class Error(val message: String) : CartState()
 }
 
 sealed class AddToCartResult {
+
     data object Loading : AddToCartResult()
     data object Success : AddToCartResult()
     data class Error(val message: String) : AddToCartResult()
@@ -30,7 +32,7 @@ class CartViewModel @Inject constructor(
     private val cartManager: CartManager
 ) : ViewModel() {
 
-    private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
+    private val _cartState = MutableStateFlow<CartState>(CartState.Idle)
     val cartState: StateFlow<CartState> = _cartState
 
     private val _addToCartResult = MutableSharedFlow<AddToCartResult>()

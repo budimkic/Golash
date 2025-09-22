@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class DetailUiState {
+    data object Idle : DetailUiState()
     data object Loading : DetailUiState()
     data class Success(val product: Product) : DetailUiState()
     data class Error(val message: String) : DetailUiState()
@@ -23,7 +24,7 @@ class DetailViewModel @Inject constructor(
     private val productRepository: MockProductRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
+    private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Idle)
     var uiState: StateFlow<DetailUiState> = _uiState
 
     private val productId = savedStateHandle.get<String>("productId")

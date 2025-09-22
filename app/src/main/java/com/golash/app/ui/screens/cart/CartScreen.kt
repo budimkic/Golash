@@ -26,11 +26,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +47,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.golash.app.R
@@ -83,12 +90,17 @@ fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
                 }
             }
         }
+
+        is CartState.Idle -> {}
     }
+
 
 }
 
 @Composable
 private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: CartViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -135,9 +147,13 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: C
                 }
             }
         }
+        if (showDialog) {
+            CustomDialog(onDismissRequest = { showDialog = false }, value = "", onValueChange = {  })
+        }
+
         Spacer(Modifier.height(16.dp))
         if (cart.items.isNotEmpty()) {
-            CartFooter(cart.totalPrice) { }
+            CartFooter(cart.totalPrice, onCheckout = { showDialog = true })
         }
     }
 }
@@ -238,7 +254,34 @@ private fun CartItemRow(
             }
         }
     }
+}
 
+@Composable
+private fun CustomDialog(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(Linen),
+            color = Linen,
+            shadowElevation = 8.dp
+        ) {
+            Column(Modifier.padding(24.dp)) {
+                TextField(value = value, onValueChange = onValueChange, label = { Text("Name") })
+
+            }
+
+        }
+    }
 }
 
 @Composable
@@ -272,7 +315,7 @@ private fun CartFooter(total: Double, onCheckout: () -> Unit) {
                         CircleShape
                     )
             ) {
-                IconButton(onClick = { onCheckout }, modifier = Modifier.fillMaxSize()) {
+                IconButton(onClick = { onCheckout() }, modifier = Modifier.fillMaxSize()) {
                     Icon(
                         Icons.Default.Check,
                         contentDescription = stringResource(R.string.checkout),
