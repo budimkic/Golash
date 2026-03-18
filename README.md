@@ -72,7 +72,7 @@ It provides a seamless shopping experience with elegant UI, smooth animations, a
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/yourusername/golash.git
+   git clone https://github.com/budimkic/golash.git
    ```
 2. **Open in Android Studio (Giraffe or newer)**
 3. **Build & Run on an emulator or device (API 26+)**
