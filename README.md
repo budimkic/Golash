@@ -6,7 +6,7 @@ _A full-featured e-commerce app in active development, built with Jetpack Compos
 ---
 
 ## 🚀 Overview
-Golash is the official Android app for the Golash clothing brand, built for production.  
+Golash is the official Android app for the Golash brand.  
 It provides a seamless shopping experience with elegant UI, smooth animations, and a scalable architecture for long-term growth.
 
 ---
