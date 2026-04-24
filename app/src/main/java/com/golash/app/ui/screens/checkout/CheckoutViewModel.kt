@@ -1,7 +1,6 @@
 package com.golash.app.ui.screens.checkout
 
 import android.util.Log
-import androidx.compose.material3.Checkbox
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.golash.app.data.api.RetrofitInstance

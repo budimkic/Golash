@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [CartItemEntity::class], version = 1)
+@Database(entities = [CartItemEntity::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartDao(): CartDao
@@ -18,10 +18,11 @@ abstract class AppDatabase : RoomDatabase() {
             fun getInstance(context: Context): AppDatabase {
                 return INSTANCE ?: synchronized(this) {
                     INSTANCE ?: Room.databaseBuilder(
-                        context.applicationContext,
-                        AppDatabase::class.java,
-                        "app_database"
-                    ).build().also { INSTANCE = it }
+                                        context.applicationContext,
+                                        AppDatabase::class.java,
+                                        "app_database"
+                                    ).fallbackToDestructiveMigration(true)
+                        .build().also { INSTANCE = it }
                 }
             }
         }

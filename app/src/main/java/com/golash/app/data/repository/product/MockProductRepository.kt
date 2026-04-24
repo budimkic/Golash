@@ -1,9 +1,9 @@
 package com.golash.app.data.repository.product
 
 import com.golash.app.R
-import com.golash.app.data.model.Product
-import com.golash.app.data.model.ProductDetails
-import com.golash.app.data.model.ProductImage
+import com.golash.app.domain.model.Product
+import com.golash.app.domain.model.ProductDetails
+import com.golash.app.domain.model.ProductImage
 import javax.inject.Inject
 import javax.inject.Singleton
 

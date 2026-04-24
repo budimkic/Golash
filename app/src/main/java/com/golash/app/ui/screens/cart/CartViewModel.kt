@@ -2,8 +2,8 @@ package com.golash.app.ui.screens.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.golash.app.data.model.Cart
-import com.golash.app.data.model.Product
+import com.golash.app.domain.model.Cart
+import com.golash.app.domain.model.Product
 import com.golash.app.manager.CartManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

@@ -1,9 +1,4 @@
-package com.golash.app.data.model
-
-data class CartItem(
-    val product: Product,
-    val quantity: Int
-)
+package com.golash.app.domain.model
 
 data class Cart(
     val items: List<CartItem>
@@ -14,3 +9,9 @@ data class Cart(
     val totalItems: Int
         get() = items.sumOf { it.quantity }
 }
+
+data class CartItem(
+    val product: Product,
+    val quantity: Int
+)
+

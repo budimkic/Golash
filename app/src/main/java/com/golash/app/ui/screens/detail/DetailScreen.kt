@@ -87,7 +87,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.golash.app.R
-import com.golash.app.data.model.Product
+import com.golash.app.domain.model.Product
 import com.golash.app.ui.screens.cart.AddToCartResult
 import com.golash.app.ui.screens.cart.CartViewModel
 import com.golash.app.ui.theme.CrimsonText

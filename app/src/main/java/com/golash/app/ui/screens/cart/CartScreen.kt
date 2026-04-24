@@ -52,8 +52,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.golash.app.R
-import com.golash.app.data.model.Cart
-import com.golash.app.data.model.CartItem
+import com.golash.app.domain.model.Cart
+import com.golash.app.domain.model.CartItem
 import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Ivory

@@ -1,6 +1,6 @@
 package com.golash.app.data.repository.cart
 
-import com.golash.app.data.model.Cart
+import com.golash.app.domain.model.Cart
 
 class FakeCartRepository : CartRepository {
     private var cart = Cart(emptyList())

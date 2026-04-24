@@ -1,6 +1,6 @@
 package com.golash.app.data.repository.cart
 
-import com.golash.app.data.model.Cart
+import com.golash.app.domain.model.Cart
 import javax.inject.Inject
 import javax.inject.Singleton
 

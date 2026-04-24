@@ -1,8 +1,8 @@
 package com.golash.app.manager
 
-import com.golash.app.data.model.Cart
-import com.golash.app.data.model.CartItem
-import com.golash.app.data.model.Product
+import com.golash.app.domain.model.Cart
+import com.golash.app.domain.model.CartItem
+import com.golash.app.domain.model.Product
 import com.golash.app.data.repository.cart.CartRepository
 import javax.inject.Inject
 
@@ -59,7 +59,7 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
     // Remove item entirely if quantity drops below 1.
     suspend fun decreaseQuantity(product: Product) {
         val cart = ensureCartLoaded()
-        var updatedCart = cart.items.map {
+        val updatedCart = cart.items.map {
             if (it.product.id == product.id) it.copy(quantity = it.quantity - 1) else it
         }.filter { it.quantity > 0 }
 

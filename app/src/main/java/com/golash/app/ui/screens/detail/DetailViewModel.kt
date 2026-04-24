@@ -3,7 +3,7 @@ package com.golash.app.ui.screens.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.golash.app.data.model.Product
+import com.golash.app.domain.model.Product
 import com.golash.app.data.repository.product.MockProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

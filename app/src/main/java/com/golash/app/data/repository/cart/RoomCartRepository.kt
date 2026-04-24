@@ -1,9 +1,9 @@
 package com.golash.app.data.repository.cart
 
 import com.golash.app.data.db.AppDatabase
-import com.golash.app.data.mapper.toCartItem
-import com.golash.app.data.mapper.toEntity
-import com.golash.app.data.model.Cart
+import com.golash.app.data.mapper.db.toCartItem
+import com.golash.app.data.mapper.db.toEntity
+import com.golash.app.domain.model.Cart
 
 class RoomCartRepository(db: AppDatabase) : CartRepository {
 

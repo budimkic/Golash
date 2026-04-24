@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.golash.app.R
-import com.golash.app.data.model.Product
+import com.golash.app.domain.model.Product
 import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Marcellus
 import com.golash.app.ui.theme.WarmSand
