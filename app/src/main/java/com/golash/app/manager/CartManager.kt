@@ -3,86 +3,58 @@ package com.golash.app.manager
 import com.golash.app.domain.model.Cart
 import com.golash.app.domain.model.CartItem
 import com.golash.app.domain.model.Product
-import com.golash.app.data.repository.cart.CartRepository
+import com.golash.app.domain.repository.CartRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-/**
- * Single source of truth for the shopping cart.
- *
- * Responsibilities:
- *  - Caches cart in memory to avoid repeated repository calls.
- *  - All mutations must go through [updateCart] to stay in sync with repository.
- **/
+
 class CartManager @Inject constructor(private val cartRepository: CartRepository) {
 
-    // Lazily loaded cart cache; null until first access.
-    private var currentCart: Cart? = null
+    val cart: Flow<Cart> = cartRepository.getCart()
 
-    // Guarantees a loaded, non-null cart for callers.
-    private suspend fun ensureCartLoaded(): Cart {
-        if (currentCart == null) {
-            currentCart = cartRepository.loadCart()
-        }
-        return currentCart!!
-    }
-
-    suspend fun loadCart(): Cart {
-        currentCart = cartRepository.loadCart()
-        return currentCart!!
-    }
-
+    private suspend fun getCurrentCart(): Cart = cart.first()
 
     suspend fun addItem(product: Product) {
-        val cart = ensureCartLoaded()
-        if (cart.items.any { it.product.id == product.id }) {
-            increaseQuantity(product)
-            return
-        }
-        val updatedCart = cart.items + CartItem(product, 1)
-        updateCart(Cart(updatedCart))
-    }
+        val currentItems = getCurrentCart().items
+        val existingItem = currentItems.find { it.product.id == product.id }
 
-    suspend fun removeItem(productId: String) {
-        val cart = ensureCartLoaded()
-        val updatedCart = cart.items.filterNot { it.product.id == productId }
-        updateCart(Cart(updatedCart))
+        if (existingItem != null) {
+            increaseQuantity(product)
+        } else {
+            cartRepository.updateCart(CartItem(product, 1))
+        }
     }
 
     suspend fun increaseQuantity(product: Product) {
-        val cart = ensureCartLoaded()
-        val updatedCart = cart.items.map {
-            if (it.product.id == product.id && it.quantity < 5) it.copy(quantity = it.quantity + 1) else it
+        val currentItems = getCurrentCart().items
+        val item = currentItems.find { it.product.id == product.id}
+
+        if (item != null) {
+            cartRepository.updateCart(item.copy(quantity = item.quantity + 1))
         }
-        updateCart(Cart(updatedCart))
     }
 
     // Remove item entirely if quantity drops below 1.
     suspend fun decreaseQuantity(product: Product) {
-        val cart = ensureCartLoaded()
-        val updatedCart = cart.items.map {
-            if (it.product.id == product.id) it.copy(quantity = it.quantity - 1) else it
-        }.filter { it.quantity > 0 }
+      val currentItems = getCurrentCart().items
+        val item = currentItems.find { it.product.id == product.id }
 
-        updateCart(Cart(updatedCart))
+        if (item != null) {
+            if (item.quantity > 1){
+                cartRepository.updateCart(item.copy(quantity = item.quantity - 1))
+            } else {
+                cartRepository.removeItem(item)
+            }
+        }
     }
 
     suspend fun clearCart() {
-        updateCart(Cart(emptyList()))
-    }
-
-    suspend fun getCart(): Cart = ensureCartLoaded()
-
-    // All cart mutations must pass through here to keep cache and repository consistent.
-    private suspend fun updateCart(updatedCart: Cart) {
-        currentCart = updatedCart
-        cartRepository.saveCart(updatedCart)
+       cartRepository.clearCart()
     }
 
     suspend fun getQuantity(product: Product): Int {
-        val cart = ensureCartLoaded()
-        return cart.items.find {
-            it.product.id == product.id
-        }?.quantity ?: 0
+        return getCurrentCart().items.find { it.product.id == product.id }?.quantity ?: 0
     }
 
 }

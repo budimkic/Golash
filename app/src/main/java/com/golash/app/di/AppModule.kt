@@ -2,7 +2,7 @@ package com.golash.app.di
 
 import android.content.Context
 import com.golash.app.data.db.AppDatabase
-import com.golash.app.data.repository.cart.CartRepository
+import com.golash.app.domain.repository.CartRepository
 import com.golash.app.data.repository.cart.RoomCartRepository
 import dagger.Module
 import dagger.Provides
