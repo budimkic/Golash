@@ -13,8 +13,6 @@ class RoomCartRepository(db: AppDatabase) : CartRepository {
 
     private val cartDao = db.cartDao()
 
-
-
     override fun getCart(): Flow<Cart> {
       return cartDao.getAll().map { entities ->
           Cart(entities.map { it.toCartItem() })
@@ -28,7 +26,6 @@ class RoomCartRepository(db: AppDatabase) : CartRepository {
     override suspend fun removeItem(item: CartItem) {
         cartDao.deleteById(item.product.id)
     }
-
 
     override suspend fun clearCart() {
         cartDao.clear()

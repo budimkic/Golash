@@ -14,17 +14,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class CartState {
-    data object Idle : CartState()
     data object Loading : CartState()
     data class Success(val cart: Cart) : CartState()
     data class Error(val message: String) : CartState()
 }
 
-sealed class AddToCartResult {
-
-    data object Loading : AddToCartResult()
-    data object Success : AddToCartResult()
-    data class Error(val message: String) : AddToCartResult()
+sealed interface Action {
+    data class OnIncreaseQuantity(val product: Product) : Action
+    data class OnDecreaseQuantity(val product: Product) : Action
+    data object OnClearCart : Action
 }
 
 @HiltViewModel
@@ -32,70 +30,50 @@ class CartViewModel @Inject constructor(
     private val cartManager: CartManager
 ) : ViewModel() {
 
-    private val _cartState = MutableStateFlow<CartState>(CartState.Idle)
+    private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
     val cartState: StateFlow<CartState> = _cartState
 
-    private val _addToCartResult = MutableSharedFlow<AddToCartResult>()
-    val addToCartResult: SharedFlow<AddToCartResult> = _addToCartResult
-
     init {
-        viewModelScope.launch { loadCart() }
+        observeCart()
     }
 
-    fun addToCart(product: Product) {
+    fun onAction(action: Action) {
+        when (action) {
+            is Action.OnIncreaseQuantity -> increaseQuantity(action.product)
+            is Action.OnDecreaseQuantity -> decreaseQuantity(action.product)
+            is Action.OnClearCart -> clearCart()
+        }
+    }
+
+    private fun observeCart() {
         viewModelScope.launch {
-            _addToCartResult.emit(AddToCartResult.Loading)
-            try {
-                cartManager.addItem(product)
-                _addToCartResult.emit(AddToCartResult.Success)
-                loadCart()
-            } catch (e: Exception) {
-                _addToCartResult.emit(AddToCartResult.Error(e.message ?: "Unknown error"))
+            cartManager.cart.collect { freshCart ->
+                _cartState.value = CartState.Success(freshCart)
             }
         }
     }
 
-   suspend fun getProductQuantity(product: Product): Int {
-        return cartManager.getQuantity(product)
-    }
-
-    fun increaseQuantity(product: Product) {
+    private fun increaseQuantity(product: Product) {
         viewModelScope.launch {
             try {
                 cartManager.increaseQuantity(product)
-                _cartState.value = CartState.Success(cartManager.getCart())
             } catch (e: Exception) {
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
         }
     }
 
-    fun decreaseQuantity(product: Product) {
+    private fun decreaseQuantity(product: Product) {
         viewModelScope.launch {
             try {
                 cartManager.decreaseQuantity(product)
-                _cartState.value = CartState.Success(cartManager.getCart())
             } catch (e: Exception) {
                 _cartState.value = CartState.Error(e.message ?: "Unknown error")
             }
         }
     }
 
-    private suspend fun loadCart() {
-        return try {
-            val cart = cartManager.loadCart()
-            _cartState.value = CartState.Success(cart)
-        } catch (e: Exception) {
-            _cartState.value = CartState.Error(e.message ?: "Unknown error")
-            throw e
-        }
-    }
-
-    fun refresh() {
-        viewModelScope.launch { loadCart() }
-    }
-
-    fun clearCart() {
+    private fun clearCart() {
         viewModelScope.launch { cartManager.clearCart() }
     }
 }

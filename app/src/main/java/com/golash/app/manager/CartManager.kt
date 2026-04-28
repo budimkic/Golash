@@ -52,9 +52,4 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
     suspend fun clearCart() {
        cartRepository.clearCart()
     }
-
-    suspend fun getQuantity(product: Product): Int {
-        return getCurrentCart().items.find { it.product.id == product.id }?.quantity ?: 0
-    }
-
 }

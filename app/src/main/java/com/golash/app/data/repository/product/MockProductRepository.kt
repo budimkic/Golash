@@ -4,13 +4,14 @@ import com.golash.app.R
 import com.golash.app.domain.model.Product
 import com.golash.app.domain.model.ProductDetails
 import com.golash.app.domain.model.ProductImage
+import com.golash.app.domain.repository.ProductRepository
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class MockProductRepository @Inject constructor() : ProductRepository {
 
-    //Mock Data
     private val haremPants = R.drawable.torba2
     private val bag = R.drawable.torba2
     private val pad = R.drawable.pad
@@ -57,8 +58,13 @@ class MockProductRepository @Inject constructor() : ProductRepository {
             )
     ))
 
-    override fun getProducts(): List<Product> = products
-    override fun getProductById(productId: String): Product? {
+    override suspend fun getProducts(): List<Product> {
+        delay(500)
+        return products
+    }
+
+
+    override suspend fun getProductById(productId: String): Product? {
         return products.find { it.id == productId }
     }
 }

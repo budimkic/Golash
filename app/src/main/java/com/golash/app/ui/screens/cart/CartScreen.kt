@@ -62,7 +62,6 @@ import com.golash.app.ui.theme.Marcellus
 
 @Composable
 fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
-    LaunchedEffect(Unit) { cartViewModel.refresh() }
     val cartState by cartViewModel.cartState.collectAsState()
 
     when (cartState) {
@@ -74,9 +73,10 @@ fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
 
         is CartState.Success -> {
             val cart = (cartState as CartState.Success).cart
-            CartContent(cart = cart, onRemove = {}, cartViewModel)
+            CartContent(cart = cart, onAction = { action -> cartViewModel.onAction(action) })
         }
 
+        //TODO implement pull-down refresh feature?
         is CartState.Error -> {
             Box(
                 modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -84,21 +84,20 @@ fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(R.string.default_error_msg), color = Color.Red)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Button(onClick = { cartViewModel.refresh() }) {
+                    Button(onClick = { /*cartViewModel.refresh()*/ }) {
                         Text(stringResource(R.string.retry))
                     }
                 }
             }
         }
-
-        is CartState.Idle -> {}
     }
-
-
 }
 
 @Composable
-private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: CartViewModel) {
+private fun CartContent(
+    cart: Cart,
+    onAction: (Action) -> Unit
+) {
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -114,7 +113,6 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: C
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
                         contentDescription = null,
@@ -129,8 +127,6 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: C
                         textAlign = TextAlign.Center
                     )
                 }
-
-
             }
         } else {
             LazyColumn(
@@ -142,8 +138,8 @@ private fun CartContent(cart: Cart, onRemove: (String) -> Unit, cartViewModel: C
                 items(cart.items) { cartItem ->
                     CartItemRow(
                         cartItem = cartItem,
-                        onIncreaseQuantity = { cartViewModel.increaseQuantity(cartItem.product) },
-                        onDecreaseQuantity = { cartViewModel.decreaseQuantity(cartItem.product) })
+                        onIncreaseQuantity = { onAction(Action.OnIncreaseQuantity(cartItem.product)) },
+                        onDecreaseQuantity = { onAction(Action.OnDecreaseQuantity(cartItem.product)) })
                 }
             }
         }
@@ -194,7 +190,6 @@ private fun CartItemRow(
                             modifier = Modifier
                                 .fillMaxSize(),
                             contentScale = ContentScale.Fit
-                            // fit entire image, no cropping
                         )
                     } ?: Log.e(
                         "CartScreen",
@@ -277,7 +272,6 @@ private fun CustomDialog(
         ) {
             Column(Modifier.padding(24.dp)) {
                 TextField(value = value, onValueChange = onValueChange, label = { Text("Name") })
-
             }
 
         }
@@ -327,6 +321,5 @@ private fun CartFooter(total: Double, onCheckout: () -> Unit) {
 
         }
     }
-
 }
 

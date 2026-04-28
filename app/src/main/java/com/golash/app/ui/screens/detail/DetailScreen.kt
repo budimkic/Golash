@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -88,7 +89,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.golash.app.R
 import com.golash.app.domain.model.Product
-import com.golash.app.ui.screens.cart.AddToCartResult
 import com.golash.app.ui.screens.cart.CartViewModel
 import com.golash.app.ui.theme.CrimsonText
 import com.golash.app.ui.theme.DarkChestnut
@@ -110,28 +110,23 @@ private const val PAGER_ASPECT_RATIO = 1f
 //TODO Complete add-to-cart functionality & Full Description (maybe add zoom on images)
 @Composable
 fun DetailScreen(
-    detailViewModel: DetailViewModel = hiltViewModel(),
-    cartViewModel: CartViewModel = hiltViewModel()
+    detailViewModel: DetailViewModel = hiltViewModel()
 ) {
     val detailUiState by detailViewModel.uiState.collectAsStateWithLifecycle()
-    val addToCartResult by cartViewModel.addToCartResult.collectAsState(initial = null)
+    val addToCartResult by detailViewModel.addToCartResult.collectAsStateWithLifecycle(initialValue = null)
+
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(addToCartResult) {
         addToCartResult?.let { result ->
             when (result) {
                 is AddToCartResult.Success -> {
-                    scope.launch {
-                        snackbarHostState.showSnackbar("Added to cart! :)")
-                    }
+                    snackbarHostState.showSnackbar("Added to cart! :)")
                 }
 
                 is AddToCartResult.Error -> {
-                    scope.launch {
-                        Log.e("DetailScreen", result.message)
-                        snackbarHostState.showSnackbar("Whoops, try again!")
-                    }
+                    Log.e("DetailScreen", result.message)
+                    snackbarHostState.showSnackbar("Whoops, try again!")
                 }
 
                 else -> {}
@@ -139,35 +134,31 @@ fun DetailScreen(
         }
     }
 
-
-    Scaffold(snackbarHost = {
-        SnackbarHost(
-            hostState = snackbarHostState,
-            snackbar = { snackbarData -> CustomSnackbar(snackbarData) }
-        )
-    }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                snackbar = { snackbarData -> CustomSnackbar(snackbarData) }
+            )
+        },
+        containerColor = Linen
     ) { paddingValues ->
         when (val state = detailUiState) {
             is DetailUiState.Success -> {
                 DetailContent(
                     modifier = Modifier.padding(paddingValues),
                     product = state.product,
-                    onAddToCart = { product: Product ->
-                        scope.launch {
-                            val quantity = cartViewModel.getProductQuantity(product)
-                            if (quantity < 5) {
-                                cartViewModel.addToCart(product)
-                            } else {
-                                snackbarHostState.showSnackbar("Maximum quantity (5) reached!")
-                            }
-                        }
-                    }
+                    action = { action -> detailViewModel.onAction(action) },
                 )
             }
 
-            is DetailUiState.Loading -> {}
+            is DetailUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
             is DetailUiState.Error -> {}
-            is DetailUiState.Idle -> {}
         }
     }
 }
@@ -176,7 +167,7 @@ fun DetailScreen(
 private fun DetailContent(
     modifier: Modifier = Modifier,
     product: Product,
-    onAddToCart: (Product) -> Unit
+    action: (Action) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { product.images.size })
     var showDescriptionDialog by remember { mutableStateOf(false) }
@@ -184,13 +175,11 @@ private fun DetailContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Linen)
     ) {
         Column(
             modifier = Modifier
                 .weight(1f)
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -301,7 +290,7 @@ private fun DetailContent(
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
-        CartFooter(product, onAddToCart)
+        CartFooter(product) { action(Action.OnAddToCart(product)) }
     }
 }
 
@@ -373,7 +362,6 @@ private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit) {
                 },
             contentAlignment = Alignment.Center
         ) {
-            //TODO Fix fade-in
             if (showCurvedText) {
                 CurvedText(
                     text = "ADD TO CART",
@@ -457,7 +445,6 @@ private class NotchedLabelShape(private val notchRadius: Float) : Shape {
                     addRect(Rect(0f, 0f, size.width, size.height))
                 }
 
-                // Create notches in each corner
                 val notches = Path().apply {
                     // Top-left notch
                     addOval(
