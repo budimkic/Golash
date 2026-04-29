@@ -89,6 +89,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.golash.app.R
 import com.golash.app.domain.model.Product
+import com.golash.app.ui.components.AnimatedErrorState
 import com.golash.app.ui.screens.cart.CartViewModel
 import com.golash.app.ui.theme.CrimsonText
 import com.golash.app.ui.theme.DarkChestnut
@@ -107,7 +108,6 @@ private const val MIN_ALPHA = 0.5f
 private const val MAX_ALPHA = 1f
 private const val PAGER_ASPECT_RATIO = 1f
 
-//TODO Complete add-to-cart functionality & Full Description (maybe add zoom on images)
 @Composable
 fun DetailScreen(
     detailViewModel: DetailViewModel = hiltViewModel()
@@ -158,7 +158,9 @@ fun DetailScreen(
                 }
             }
 
-            is DetailUiState.Error -> {}
+            is DetailUiState.Error -> {
+                AnimatedErrorState()
+            }
         }
     }
 }

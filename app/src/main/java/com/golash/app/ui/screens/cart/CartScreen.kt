@@ -20,12 +20,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -54,7 +58,9 @@ import coil.compose.AsyncImage
 import com.golash.app.R
 import com.golash.app.domain.model.Cart
 import com.golash.app.domain.model.CartItem
+import com.golash.app.ui.components.AnimatedErrorState
 import com.golash.app.ui.theme.DeepBark
+import com.golash.app.ui.theme.DeepOlive
 import com.golash.app.ui.theme.EarthBrown
 import com.golash.app.ui.theme.Ivory
 import com.golash.app.ui.theme.Linen
@@ -64,30 +70,42 @@ import com.golash.app.ui.theme.Marcellus
 fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
     val cartState by cartViewModel.cartState.collectAsState()
 
-    when (cartState) {
-        is CartState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        cartViewModel.cartActionErrorState.collect { errorState ->
+            if (errorState is CartState.CartActionError) {
+                snackbarHostState.showSnackbar("Whoops, try again!")
             }
         }
+    }
 
-        is CartState.Success -> {
-            val cart = (cartState as CartState.Success).cart
-            CartContent(cart = cart, onAction = { action -> cartViewModel.onAction(action) })
-        }
-
-        //TODO implement pull-down refresh feature?
-        is CartState.Error -> {
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.default_error_msg), color = Color.Red)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(onClick = { /*cartViewModel.refresh()*/ }) {
-                        Text(stringResource(R.string.retry))
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState, snackbar = { CustomSnackbar(it) })
+        },
+        containerColor = Linen
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            when (cartState) {
+                is CartState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
                 }
+
+                is CartState.Success -> {
+                    val cart = (cartState as CartState.Success).cart
+                    CartContent(
+                        cart = cart,
+                        onAction = { action -> cartViewModel.onAction(action) })
+                }
+
+                is CartState.LoadCartError -> {
+                    AnimatedErrorState()
+                }
+
+                else -> {}
             }
         }
     }
@@ -132,7 +150,6 @@ private fun CartContent(
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
                     .weight(1f)
             ) {
                 items(cart.items) { cartItem ->
@@ -144,7 +161,7 @@ private fun CartContent(
             }
         }
         if (showDialog) {
-            CustomDialog(onDismissRequest = { showDialog = false }, value = "", onValueChange = {  })
+            CustomDialog(onDismissRequest = { showDialog = false }, value = "", onValueChange = { })
         }
 
         Spacer(Modifier.height(16.dp))
@@ -247,6 +264,38 @@ private fun CartItemRow(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CustomSnackbar(
+    snackbarData: SnackbarData,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .padding(10.dp)
+            .clip(RoundedCornerShape(12.dp)),
+        color = DeepOlive,
+        shadowElevation = 4.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Error,
+                contentDescription = null,
+                tint = Ivory
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = snackbarData.visuals.message,
+                color = Ivory,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

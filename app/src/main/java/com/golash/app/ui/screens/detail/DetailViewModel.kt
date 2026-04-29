@@ -8,6 +8,7 @@ import com.golash.app.domain.repository.ProductRepository
 import com.golash.app.manager.CartManager
 import com.golash.app.ui.screens.detail.Action
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -48,6 +49,7 @@ class DetailViewModel @Inject constructor(
 
     private val productIdFlow = savedStateHandle.getStateFlow<String?>(key = "productId", initialValue = null)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<DetailUiState> = productIdFlow
         .filterNotNull()
         .flatMapLatest { id ->

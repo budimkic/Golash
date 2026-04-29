@@ -10,13 +10,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class CartState {
     data object Loading : CartState()
     data class Success(val cart: Cart) : CartState()
-    data class Error(val message: String) : CartState()
+    data object LoadCartError : CartState()
+    data object CartActionError : CartState()
 }
 
 sealed interface Action {
@@ -33,8 +35,12 @@ class CartViewModel @Inject constructor(
     private val _cartState = MutableStateFlow<CartState>(CartState.Loading)
     val cartState: StateFlow<CartState> = _cartState
 
+    private val _cartActionErrorState = MutableSharedFlow<CartState>()
+    val cartActionErrorState: SharedFlow<CartState> = _cartActionErrorState.asSharedFlow()
+
     init {
         observeCart()
+        //simulateError()
     }
 
     fun onAction(action: Action) {
@@ -45,11 +51,20 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    fun simulateError() {
+        _cartState.value = CartState.LoadCartError
+    }
+
     private fun observeCart() {
         viewModelScope.launch {
-            cartManager.cart.collect { freshCart ->
-                _cartState.value = CartState.Success(freshCart)
+            try {
+                cartManager.cart.collect { freshCart ->
+                    _cartState.value = CartState.Success(freshCart)
+                }
+            } catch (e: Exception) {
+                _cartState.value = CartState.LoadCartError
             }
+
         }
     }
 
@@ -58,7 +73,7 @@ class CartViewModel @Inject constructor(
             try {
                 cartManager.increaseQuantity(product)
             } catch (e: Exception) {
-                _cartState.value = CartState.Error(e.message ?: "Unknown error")
+                _cartActionErrorState.emit(CartState.CartActionError)
             }
         }
     }
@@ -68,7 +83,7 @@ class CartViewModel @Inject constructor(
             try {
                 cartManager.decreaseQuantity(product)
             } catch (e: Exception) {
-                _cartState.value = CartState.Error(e.message ?: "Unknown error")
+                _cartActionErrorState.emit(CartState.CartActionError)
             }
         }
     }
