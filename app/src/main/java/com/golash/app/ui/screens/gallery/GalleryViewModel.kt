@@ -5,24 +5,26 @@ import androidx.lifecycle.viewModelScope
 import com.golash.app.domain.model.Product
 import com.golash.app.data.repository.product.MockProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class GalleryUIState {
-    data object Idle : GalleryUIState()
-    data object Loading : GalleryUIState()
-    data class Success(val products: List<Product>) : GalleryUIState()
-    data class Error(val message: String) : GalleryUIState()
+sealed class GalleryState {
+    data object Idle : GalleryState()
+    data object Loading : GalleryState()
+    data class Success(val products: List<Product>) : GalleryState()
+    data class Error(val message: String) : GalleryState()
 }
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(private val repository: MockProductRepository) :
     ViewModel() {
 
-    private val _uiState = MutableStateFlow<GalleryUIState>(GalleryUIState.Idle)
-    val uiState: StateFlow<GalleryUIState> = _uiState
+    private val _uiState = MutableStateFlow<GalleryState>(GalleryState.Loading)
+    val uiState: StateFlow<GalleryState> = _uiState
 
     init {
         loadProducts()
@@ -31,11 +33,11 @@ class GalleryViewModel @Inject constructor(private val repository: MockProductRe
     private fun loadProducts() {
         viewModelScope.launch {
             try {
-                _uiState.value = GalleryUIState.Loading
+                _uiState.value = GalleryState.Loading
                 val products = repository.getProducts()
-                _uiState.value = GalleryUIState.Success(products)
+                _uiState.value = GalleryState.Success(products)
             } catch (e: Exception) {
-                _uiState.value = GalleryUIState.Error(e.message ?: "Unknown error occurred")
+                _uiState.value = GalleryState.Error(e.message ?: "Unknown error occurred")
             }
         }
     }
@@ -43,5 +45,4 @@ class GalleryViewModel @Inject constructor(private val repository: MockProductRe
     fun refresh() {
         loadProducts()
     }
-
 }

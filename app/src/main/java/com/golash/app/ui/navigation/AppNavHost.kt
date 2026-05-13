@@ -1,5 +1,10 @@
 package com.golash.app.ui.navigation
 
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -11,6 +16,7 @@ import com.golash.app.ui.screens.cart.CartScreen
 import com.golash.app.ui.screens.detail.DetailScreen
 import com.golash.app.ui.screens.gallery.GalleryScreen
 import com.golash.app.ui.screens.home.HomeScreen
+import com.golash.app.ui.theme.Linen
 
 @Composable
 fun AppNavHost(
@@ -22,7 +28,11 @@ fun AppNavHost(
     NavHost(
         navController = navController,
         startDestination = startDestination.route,
-        modifier = modifier
+        modifier = modifier.background(Linen),
+        enterTransition = { fadeIn(animationSpec = tween(100, easing = EaseInOut)) },
+        exitTransition = { fadeOut(animationSpec = tween(100, easing = EaseInOut)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(100, easing = EaseInOut)) },
+        popExitTransition = { fadeOut(animationSpec = tween(100, easing = EaseInOut)) }
     ) {
         composable(Destination.HOME.route) {
             HomeScreen(navController = navController)
