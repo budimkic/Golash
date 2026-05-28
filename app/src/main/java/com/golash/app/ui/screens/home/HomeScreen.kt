@@ -1,10 +1,12 @@
 package com.golash.app.ui.screens.home
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,10 +22,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.golash.app.R
+import com.golash.app.ui.components.OakTreeLoader
 import com.golash.app.ui.components.RotatingProductCard
 import com.golash.app.ui.theme.CormorantGaramondItalic
 import com.golash.app.ui.theme.DeepBark
@@ -68,111 +71,96 @@ fun HomeScreen(
         uiState = uiState,
         onProductClick = { productId ->
             navController.navigate("product_detail/$productId")
-        },
-        onRefresh = { viewModel.refresh() }
+        }
     )
 }
-
 @Composable
 private fun HomeContent(
-    uiState: HomeUiState, onProductClick: (String) -> Unit,
-    onRefresh: () -> Unit
+    uiState: HomeUiState,
+    onProductClick: (String) -> Unit
 ) {
-
     val scrollState = rememberScrollState()
-    var initialAnimationState by rememberSaveable { mutableStateOf(false) }
-    var showText by remember { mutableStateOf(false) }
-    var showCard by remember { mutableStateOf(false) }
-    var showProducts by remember { mutableStateOf(false) }
+    var isLocalLoading by remember { mutableStateOf(true) }
+    var showContent by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        if (!initialAnimationState) {
-            showText = true
-            delay(1000)
-            showCard = true
-            delay(200)
-            initialAnimationState = true
-            showProducts = true
+    LaunchedEffect(uiState) {
+        if (uiState is HomeUiState.Success) {
+            delay(600)
+            isLocalLoading = false
+            delay(100)
+            showContent = true
         } else {
-            showText = true
-            showCard = true
-            showProducts = true
+            isLocalLoading = true
+            showContent = false
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Linen)
-            .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        AnimatedVisibility(
-            visible = showText,
-            enter = if (!initialAnimationState)
-                fadeIn(animationSpec = tween(2000))
-            else
-                fadeIn(tween(0))
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo_golash),
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .size(90.dp),
-                contentDescription = ""
-            )
-        }
-
-        AnimatedVisibility(
-            visible = showText,
-            enter = if (!initialAnimationState)
-                fadeIn(animationSpec = tween(3000))
-            else fadeIn(tween(0))
-        ) {
-            Text(
-                text = "Plant a tree today, " +
-                        "its shade will outlive you.",
-                fontFamily = CormorantGaramondItalic,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = DeepBark,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp)
-            )
-        }
-
-        when (uiState) {
-            is HomeUiState.Loading -> {
-               /* ShimmerEffect(
-                    isLoading = true,
-                    contentAfterLoading = {}, modifier = Modifier.padding(32.dp),
-                    height = 200.dp, shape = RoundedCornerShape(12.dp)
-                ) */
+    Crossfade(
+        targetState = (uiState is HomeUiState.Loading || isLocalLoading),
+        animationSpec = tween(700, easing = EaseInOut),
+        label = "home_content_transition",
+        modifier = Modifier.fillMaxSize().background(Linen)
+    ) { currentlyLoading ->
+        if (currentlyLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                OakTreeLoader(modifier = Modifier.wrapContentSize())
             }
+        } else if (uiState is HomeUiState.Success) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val logoAlpha by animateFloatAsState(
+                    targetValue = if (showContent) 1f else 0f,
+                    animationSpec = tween(700)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.logo_golash),
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .size(90.dp)
+                        .graphicsLayer(alpha = logoAlpha),
+                    contentDescription = null
+                )
 
-            is HomeUiState.Success -> {
-                AnimatedVisibility(
-                    visible = showCard,
-                    enter = if (!initialAnimationState)
-                        fadeIn(animationSpec = tween(1400))
-                    else fadeIn(tween(0))
+                val textAlpha by animateFloatAsState(
+                    targetValue = if (showContent) 1f else 0f,
+                    animationSpec = tween(700)
+                )
+                Text(
+                    text = "Plant a tree today, its shade will outlive you.",
+                    fontFamily = CormorantGaramondItalic,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = DeepBark,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 20.dp)
+                        .graphicsLayer(alpha = textAlpha)
+                )
+
+                val cardAlpha by animateFloatAsState(
+                    targetValue = if (showContent) 1f else 0f,
+                    animationSpec = tween(1000, delayMillis = 400)
+                )
+                Box(
+                    Modifier
+                        .graphicsLayer(alpha = cardAlpha)
+                        .padding(bottom = 60.dp)
                 ) {
                     RotatingProductCard(
                         products = uiState.products,
                         onProductClick = onProductClick,
-                        fadeInEnabled = showCard && !initialAnimationState,
+                        fadeInEnabled = false,
                         modifier = Modifier.wrapContentSize()
                     )
                 }
             }
-
-            is HomeUiState.Error -> {
-                // Error state is handled by the Snackbar
-            }
         }
     }
 }
-
-
-

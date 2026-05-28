@@ -103,8 +103,8 @@ private fun GalleryContent(
         AnimatedContent(
             targetState = uiState,
             transitionSpec = {
-                fadeIn(animationSpec = tween(1200, easing = EaseInOut)) togetherWith
-                        fadeOut(animationSpec = tween(600, easing = EaseInOut))
+                fadeIn(animationSpec = tween(1000, easing = EaseInOut)) togetherWith
+                        fadeOut(animationSpec = tween(400, easing = EaseInOut))
             },
             label = "gallery_crossfade"
         ) { state ->

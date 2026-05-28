@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.golash.app.R
 import com.golash.app.domain.model.Product
 import com.golash.app.ui.theme.EarthBrown
@@ -53,11 +55,11 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun RotatingProductCard(
+    modifier: Modifier = Modifier,
     products: List<Product>,
     onProductClick: (String) -> Unit,
     intervalMillis: Long = 5000L,
-    fadeInEnabled: Boolean,
-    modifier: Modifier = Modifier
+    fadeInEnabled: Boolean
 ) {
     var visible by remember { mutableStateOf(false) }
 
@@ -65,8 +67,6 @@ fun RotatingProductCard(
 
     var currentIndex by remember { mutableIntStateOf(0) }
 
-    // Every [intervalMillis], increment the index to show the next product
-    // The % operator ensures we loop back to 0 when we reach the end of the list
     LaunchedEffect(Unit) {
         visible = true
         while (true) {
@@ -135,7 +135,10 @@ fun RotatingProductCard(
                             )
                         } else if (animatedProduct.primaryImage?.type?.name == stringResource(R.string.remote)) {
                             AsyncImage(
-                                model = animatedProduct.primaryImage?.url,
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(animatedProduct.primaryImage?.url)
+                                    .crossfade(300)
+                                    .build(),
                                 contentDescription = stringResource(R.string.product_image),
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -150,7 +153,7 @@ fun RotatingProductCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            AnimatedVisibility(
+           AnimatedVisibility(
                 visible = visible,
                 enter = if (fadeInEnabled) fadeIn(tween(3000)) else fadeIn(tween(0))
             ) {

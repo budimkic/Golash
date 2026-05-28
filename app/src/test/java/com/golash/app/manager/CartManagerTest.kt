@@ -1,6 +1,6 @@
 package com.golash.app.manager
 
-import com.golash.app.data.model.Product
+import com.golash.app.domain.model.Product
 import com.golash.app.data.repository.cart.FakeCartRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Before

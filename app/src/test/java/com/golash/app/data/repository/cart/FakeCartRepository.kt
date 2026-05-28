@@ -1,5 +1,6 @@
 package com.golash.app.data.repository.cart
 
+import com.golash.app.domain.repository.CartRepository
 import com.golash.app.domain.model.Cart
 
 class FakeCartRepository : CartRepository {
