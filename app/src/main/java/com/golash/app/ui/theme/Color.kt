@@ -28,3 +28,9 @@ val CanopyMid = Color(0xFF5A7D34)
 val LeafOrange = Color(0xFFC8873A)
 val LeafStem = Color(0xFFA06828)
 val TextEarth = Color(0xFF5A4A32)
+
+val MoneyGreen = Color(0xFF85BB65)
+val Gold = Color(0xFFD4AF37)
+val WarmGold = Color(0xFFC5A059)
+
+val AbrasiveRed = Color(0xFFC85A46)

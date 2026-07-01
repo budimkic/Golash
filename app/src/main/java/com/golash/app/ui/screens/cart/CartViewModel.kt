@@ -6,6 +6,7 @@ import com.golash.app.domain.model.Cart
 import com.golash.app.domain.model.Product
 import com.golash.app.manager.CartManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,7 +41,7 @@ class CartViewModel @Inject constructor(
 
     init {
         observeCart()
-        //simulateError()
+       // simulateError()
     }
 
     fun onAction(action: Action) {
@@ -57,6 +58,7 @@ class CartViewModel @Inject constructor(
 
     private fun observeCart() {
         viewModelScope.launch {
+            delay(500)
             try {
                 cartManager.cart.collect { freshCart ->
                     _cartState.value = CartState.Success(freshCart)

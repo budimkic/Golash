@@ -34,6 +34,7 @@ class GalleryViewModel @Inject constructor(private val repository: MockProductRe
         viewModelScope.launch {
             try {
                 _uiState.value = GalleryState.Loading
+                delay(500)
                 val products = repository.getProducts()
                 _uiState.value = GalleryState.Success(products)
             } catch (e: Exception) {

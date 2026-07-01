@@ -6,12 +6,16 @@ import com.golash.app.domain.model.Product
 import com.golash.app.domain.repository.CartRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 
 class CartManager @Inject constructor(private val cartRepository: CartRepository) {
 
-    val cart: Flow<Cart> = cartRepository.getCart()
+    val cart: Flow<Cart> = cartRepository.getCart().map { rawCart ->
+        val sortedItems = rawCart.items.sortedBy { it.product.id }
+        rawCart.copy(items = sortedItems)
+    }
 
     private suspend fun getCurrentCart(): Cart = cart.first()
 

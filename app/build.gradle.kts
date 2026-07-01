@@ -51,6 +51,7 @@ android {
 dependencies {
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.compose.ui)
     kapt(libs.hilt.android.compiler)
     
     // Hilt Navigation Compose

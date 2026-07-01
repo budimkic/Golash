@@ -59,7 +59,7 @@ class MockProductRepository @Inject constructor() : ProductRepository {
     ))
 
     override suspend fun getProducts(): List<Product> {
-        delay(500)
+        //delay(500)
         return products
     }
 
