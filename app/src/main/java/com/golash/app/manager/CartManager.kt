@@ -19,14 +19,14 @@ class CartManager @Inject constructor(private val cartRepository: CartRepository
 
     private suspend fun getCurrentCart(): Cart = cart.first()
 
-    suspend fun addItem(product: Product) {
+    suspend fun addItem(product: Product, selectedSize: String) {
         val currentItems = getCurrentCart().items
         val existingItem = currentItems.find { it.product.id == product.id }
 
         if (existingItem != null) {
             increaseQuantity(product)
         } else {
-            cartRepository.updateCart(CartItem(product, 1))
+            cartRepository.updateCart(CartItem(product, selectedSize, 1))
         }
     }
 

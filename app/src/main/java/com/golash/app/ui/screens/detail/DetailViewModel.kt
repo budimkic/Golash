@@ -36,7 +36,7 @@ sealed class AddToCartResult {
 }
 
 sealed interface Action {
-    data class OnAddToCart(val product: Product) : Action
+    data class OnAddToCart(val product: Product, val selectedSize: String) : Action
 }
 
 @HiltViewModel
@@ -78,15 +78,15 @@ class DetailViewModel @Inject constructor(
 
     fun onAction(action: Action) {
         when (action) {
-            is Action.OnAddToCart -> addToCart(action.product)
+            is Action.OnAddToCart -> addToCart(action.product, action.selectedSize)
         }
     }
 
-    private fun addToCart(product: Product) {
+    private fun addToCart(product: Product, selectedSize: String) {
         viewModelScope.launch {
             _addToCartResult.emit(AddToCartResult.Loading)
             try {
-                cartManager.addItem(product)
+                cartManager.addItem(product, selectedSize)
                 _addToCartResult.emit(AddToCartResult.Success)
             } catch (e: Exception) {
                 _addToCartResult.emit(AddToCartResult.Error(e.message ?: "Unknown error"))

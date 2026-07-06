@@ -15,7 +15,7 @@ fun CartItemEntity.toCartItem(): CartItem {
             shortDescription = productDescription,
 
             details = ProductDetails(
-                size = size,
+                sizes = sizes,
                 careInstructions = careInstructions,
                 materials = materials
             ),
@@ -23,6 +23,7 @@ fun CartItemEntity.toCartItem(): CartItem {
             price = price,
             images = images.map { it.toDomain() }
         ),
+        selectedSize = selectedSize,
         quantity = quantity
     )
 }
@@ -36,12 +37,13 @@ fun CartItem.toEntity(): CartItemEntity {
 
         //ProductDetails
         /*----------------------------*/
-        size = product.details.size,
+        sizes = product.details.sizes,
         careInstructions = product.details.careInstructions,
         materials = product.details.materials,
         /*----------------------------*/
 
         images = product.images.map { it.toEntity() },
+        selectedSize = selectedSize,
         quantity = quantity
     )
 }

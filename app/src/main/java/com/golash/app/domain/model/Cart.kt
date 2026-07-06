@@ -12,6 +12,7 @@ data class Cart(
 
 data class CartItem(
     val product: Product,
+    val selectedSize: String,
     val quantity: Int
 )
 

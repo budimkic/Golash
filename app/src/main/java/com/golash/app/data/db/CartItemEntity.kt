@@ -12,12 +12,13 @@ data class CartItemEntity(
 
     //ProductDetails
     /*----------------------------*/
-    val size: String,
+    val sizes: List<String>,
     val careInstructions: String,
     val materials: String,
     /*----------------------------*/
 
     val images: List<ProductImageEntity>,
+    val selectedSize: String,
     val quantity: Int
 )
 

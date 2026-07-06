@@ -12,7 +12,7 @@ data class Product(
 }
 
 data class ProductDetails(
-    val size: String,
+    val sizes: List<String>,
     val careInstructions: String,
     val materials: String
 )

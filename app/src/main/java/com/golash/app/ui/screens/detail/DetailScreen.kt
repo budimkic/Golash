@@ -9,10 +9,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,10 +46,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,13 +64,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -149,6 +158,7 @@ fun DetailScreen(
                     modifier = Modifier.padding(paddingValues),
                     product = state.product,
                     action = { action -> detailViewModel.onAction(action) },
+                    snackbarHostState = snackbarHostState
                 )
             }
 
@@ -169,10 +179,13 @@ fun DetailScreen(
 private fun DetailContent(
     modifier: Modifier = Modifier,
     product: Product,
-    action: (Action) -> Unit
+    action: (Action) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val pagerState = rememberPagerState(pageCount = { product.images.size })
     var showDescriptionDialog by remember { mutableStateOf(false) }
+    var selectedSize by remember(product.id) { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = modifier
@@ -286,18 +299,38 @@ private fun DetailContent(
                 }
 
                 if (showDescriptionDialog) {
-                    CustomDialog(product, onDismissRequest = { showDescriptionDialog = false })
+                    CustomDialog(
+                        product,
+                        selectedSize = selectedSize,
+                        onSizeSelected = { selectedSize = it },
+                        onDismissRequest = { showDescriptionDialog = false })
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
-        CartFooter(product) { action(Action.OnAddToCart(product)) }
+        CartFooter(
+            product = product,
+            selectedSize = selectedSize,
+            onRequireSize = {
+                // TODO add toast
+               // scope.launch { snackbarHostState.showSnackbar("Pick a size!", duration = SnackbarDuration.Short) }
+
+                showDescriptionDialog = true
+            },
+            onAddToCart =
+                { size -> action(Action.OnAddToCart(product, size)) }
+        )
     }
 }
 
 @Composable
-private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit) {
+private fun CartFooter(
+    product: Product,
+    selectedSize: String?,
+    onRequireSize: () -> Unit,
+    onAddToCart: (String) -> Unit
+) {
     val scope = rememberCoroutineScope()
     val pulseScale = remember { Animatable(1f) }
     var showCurvedText by remember { mutableStateOf(false) }
@@ -334,7 +367,7 @@ private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit) {
                 .size(48.dp)
                 .scale(pulseScale.value)
                 .background(DarkChestnut, CircleShape)
-                .pointerInput(product) {
+                .pointerInput(product, selectedSize) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
                         var longPressed = false
@@ -355,8 +388,12 @@ private fun CartFooter(product: Product, onAddToCart: (Product) -> Unit) {
                         scope.launch { pulseScale.animateTo(1f, tween(300)) }
 
                         if (up != null && !longPressed) {
-                            // Tap detected
-                            onAddToCart(product)
+                            val size = selectedSize
+                            if (size != null) {
+                                onAddToCart(size)
+                            } else {
+                                onRequireSize()
+                            }
                         }
 
                         showCurvedText = false
@@ -577,7 +614,12 @@ private fun CustomSnackbar(
 }
 
 @Composable
-private fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
+private fun CustomDialog(
+    product: Product,
+    selectedSize: String?,
+    onSizeSelected: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -600,6 +642,7 @@ private fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
                     fontFamily = Marcellus,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
+
                 Text(
                     text = product.shortDescription,
                     style = MaterialTheme.typography.bodyLarge,
@@ -608,33 +651,94 @@ private fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
                     lineHeight = 24.sp
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                VineDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-                Text(
-                    text = product.details.size,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = DeepBark.copy(alpha = 0.9f),
-                    fontFamily = CrimsonText,
-                    lineHeight = 24.sp
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = product.details.careInstructions,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = DeepBark.copy(alpha = 0.9f),
-                    fontFamily = CrimsonText,
-                    lineHeight = 24.sp
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = product.details.materials,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = DeepBark.copy(alpha = 0.9f),
-                    fontFamily = CrimsonText,
-                    lineHeight = 24.sp
-                )
+                Row {
+                    Text(
+                        text = "Materials: ",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = DeepBark.copy(alpha = 0.9f),
+                        fontFamily = CrimsonText,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 24.sp
+                    )
+
+                    Text(
+                        text = product.details.materials,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = DeepBark.copy(alpha = 0.9f),
+                        fontFamily = CrimsonText,
+                        lineHeight = 24.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    Text(
+                        text = "Care: ",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = DeepBark.copy(alpha = 0.9f),
+                        fontFamily = CrimsonText,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 24.sp
+                    )
+
+                    Text(
+                        text = product.details.careInstructions,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = DeepBark.copy(alpha = 0.9f),
+                        fontFamily = CrimsonText,
+                        lineHeight = 24.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Size:",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = DeepBark.copy(alpha = 0.9f),
+                        fontFamily = CrimsonText,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 24.sp
+                    )
+
+                    product.details.sizes.forEach { size ->
+                        val isSelected = size == selectedSize
+                        Box(
+                            modifier = Modifier
+                                .clickable { onSizeSelected(size) }
+                                .border(width = 1.dp, color = DarkChestnut.copy(0.6f))
+                                .background(color = if (!isSelected) Linen else DeepBark.copy(alpha = 0.9f))
+                                .padding(4.dp)) {
+                            Text(
+                                text = size,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (!isSelected) DeepBark.copy(alpha = 0.9f) else Ivory,
+                                fontFamily = CrimsonText,
+                                lineHeight = 24.sp
+                            )
+                        }
+                    }
+                }
+
+                if (selectedSize == null) {
+                    Text(
+                        text = "Please select a size",
+                        color = DarkChestnut,
+                        fontFamily = CrimsonText,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
 
                 Spacer(Modifier.height(24.dp))
+
                 Button(
                     onClick = onDismissRequest,
                     modifier = Modifier
@@ -653,5 +757,68 @@ private fun CustomDialog(product: Product, onDismissRequest: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun VineDivider(
+    modifier: Modifier = Modifier,
+    vineColor: Color = DeepOlive,
+    leafCount: Int = 5
+) {
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(24.dp)
+    ) {
+        val width = size.width
+        val height = size.height
+        val midY = height / 2
+
+        // The wavy stem, drawn as a smooth S-curve repeated across the width
+        val stemPath = Path().apply {
+            moveTo(0f, midY)
+            val segments = 4
+            val segmentWidth = width / segments
+            for (i in 0 until segments) {
+                val startX = i * segmentWidth
+                val endX = startX + segmentWidth
+                val controlY = if (i % 2 == 0) midY - 8.dp.toPx() else midY + 8.dp.toPx()
+                quadraticBezierTo(
+                    startX + segmentWidth / 2, controlY,
+                    endX, midY
+                )
+            }
+        }
+
+        drawPath(
+            path = stemPath,
+            color = vineColor,
+            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round)
+        )
+
+        // Scatter small leaf shapes along the stem
+        repeat(leafCount) { i ->
+            val t = (i + 0.5f) / leafCount
+            val x = t * width
+            // Alternate leaves above/below the stem, matching the wave direction
+            val leafUp = (i % 2 == 0)
+            val leafY = if (leafUp) midY - 6.dp.toPx() else midY + 6.dp.toPx()
+
+            rotate(degrees = if (leafUp) -30f else 30f, pivot = Offset(x, leafY)) {
+                drawOval(
+                    color = vineColor.copy(alpha = 0.85f),
+                    topLeft = Offset(x - 4.dp.toPx(), leafY - 2.dp.toPx()),
+                    size = androidx.compose.ui.geometry.Size(8.dp.toPx(), 4.dp.toPx())
+                )
+            }
+        }
+
+        // A tiny leaf/bud at the very center, slightly larger, as a focal point
+        /*  drawOval(
+              color = vineColor,
+              topLeft = Offset(width / 2 - 5.dp.toPx(), midY - 6.dp.toPx()),
+              size = androidx.compose.ui.geometry.Size(10.dp.toPx(), 6.dp.toPx())
+          )*/
     }
 }
