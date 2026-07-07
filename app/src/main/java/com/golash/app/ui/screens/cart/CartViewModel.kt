@@ -23,8 +23,8 @@ sealed class CartState {
 }
 
 sealed interface Action {
-    data class OnIncreaseQuantity(val product: Product) : Action
-    data class OnDecreaseQuantity(val product: Product) : Action
+    data class OnIncreaseQuantity(val product: Product, val selectedSize: String) : Action
+    data class OnDecreaseQuantity(val product: Product, val selectedSize: String) : Action
     data object OnClearCart : Action
 }
 
@@ -46,8 +46,8 @@ class CartViewModel @Inject constructor(
 
     fun onAction(action: Action) {
         when (action) {
-            is Action.OnIncreaseQuantity -> increaseQuantity(action.product)
-            is Action.OnDecreaseQuantity -> decreaseQuantity(action.product)
+            is Action.OnIncreaseQuantity -> increaseQuantity(action.product, action.selectedSize)
+            is Action.OnDecreaseQuantity -> decreaseQuantity(action.product, action.selectedSize)
             is Action.OnClearCart -> clearCart()
         }
     }
@@ -70,20 +70,20 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    private fun increaseQuantity(product: Product) {
+    private fun increaseQuantity(product: Product, selectedSize: String) {
         viewModelScope.launch {
             try {
-                cartManager.increaseQuantity(product)
+                cartManager.increaseQuantity(product, selectedSize)
             } catch (e: Exception) {
                 _cartActionErrorState.emit(CartState.CartActionError)
             }
         }
     }
 
-    private fun decreaseQuantity(product: Product) {
+    private fun decreaseQuantity(product: Product, selectedSize: String) {
         viewModelScope.launch {
             try {
-                cartManager.decreaseQuantity(product)
+                cartManager.decreaseQuantity(product, selectedSize)
             } catch (e: Exception) {
                 _cartActionErrorState.emit(CartState.CartActionError)
             }

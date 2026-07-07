@@ -17,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,25 +48,35 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -175,7 +187,7 @@ private fun CartContent(
                             Text(
                                 stringResource(R.string.fill_your_cart),
                                 style = MaterialTheme.typography.headlineSmall,
-                                color = Color.Gray,
+                                color = Gray,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -186,39 +198,73 @@ private fun CartContent(
             CartUiPhase.SUCCESS -> {
                 val successState = cartState as? CartState.Success
                 Column(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                            .weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (successState != null) {
 
-                            items(successState.cart.items, key = { it -> it.product.id}) { cartItem ->
-                                Log.d(TAG, cartItem.product.id)
-                                CartItemRow(
-                                    cartItem = cartItem,
-                                    onIncreaseQuantity = {
-                                        onAction(
-                                            Action.OnIncreaseQuantity(
-                                                cartItem.product
-                                            )
-                                        )
-                                    },
-                                    onDecreaseQuantity = {
-                                        onAction(
-                                            Action.OnDecreaseQuantity(
-                                                cartItem.product
-                                            )
-                                        )
-                                    }
+                    val lazyListState = rememberLazyListState()
+                    val fadeZoneHeightPx = with(LocalDensity.current) { 64.dp.toPx() }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                            .drawWithContent {
+                                drawContent()
+
+                                // Decrease the fadeZoneHeightPx or adjust this multiplier to make the fade start later
+                                val fadeStartRatio = (size.height - (fadeZoneHeightPx * 0.8f)) / size.height
+
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        0f to Color.Black,
+                                        fadeStartRatio to Color.Black,
+                                        // Using a slightly visible color (alpha 0.2f) instead of full Transparent
+                                        // makes the transition feel much less "abrupt"
+                                        1f to Color.Black.copy(alpha = 0.2f)
+                                    ),
+                                    blendMode = BlendMode.DstIn
                                 )
                             }
+                    ){
+                        LazyColumn(
+                            state = lazyListState,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                                    contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (successState != null) {
+                                items(
+                                    successState.cart.items,
+                                    key = { cartItem -> "${cartItem.product.id}_${cartItem.selectedSize}" }) { cartItem ->
+                                    CartItemRow(
+                                        cartItem = cartItem,
+                                        onIncreaseQuantity = {
+                                            onAction(
+                                                Action.OnIncreaseQuantity(
+                                                    cartItem.product,
+                                                    cartItem.selectedSize
+                                                )
+                                            )
+                                        },
+                                        onDecreaseQuantity = {
+                                            onAction(
+                                                Action.OnDecreaseQuantity(
+                                                    cartItem.product,
+                                                    cartItem.selectedSize
+                                                )
+                                            )
+                                        },
+                                        modifier = Modifier.graphicsLayer { this.alpha = alpha }
+                                    )
+                                }
+                            }
                         }
+
                     }
+
+
                     if (successState != null) {
-                        CartFooter(successState.cart.totalPrice,) { showDialog = true }
+                        CartFooter(successState.cart.totalPrice) { showDialog = true }
                     }
                 }
 
@@ -244,33 +290,35 @@ private fun CartContent(
 private fun CartItemRow(
     cartItem: CartItem,
     onIncreaseQuantity: () -> Unit,
-    onDecreaseQuantity: () -> Unit
+    onDecreaseQuantity: () -> Unit,
+    fadeAlpha: Float = 1f,
+    modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        shape = RoundedCornerShape(16.dp),
-        color = WarmSand,
-        shadowElevation = 8.dp
-    ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(2.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(16.dp),
+            color = WarmSand,
+            shadowElevation = 8.dp
         ) {
 
-            val containerHeight = 90.dp
-            val aspectRatio = 960f / 1280f
-            val containerWidth = containerHeight * aspectRatio
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            Spacer(Modifier.width(12.dp))
+                val containerHeight = 90.dp
+                val aspectRatio = 960f / 1280f
+                val containerWidth = containerHeight * aspectRatio
 
-            Card(
+                Spacer(Modifier.width(12.dp))
+
+                Card(
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.size(width = containerWidth, height = containerHeight),
                     colors = CardDefaults.cardColors(containerColor = WarmSand)
@@ -298,55 +346,66 @@ private fun CartItemRow(
                     }
                 }
 
-            Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(12.dp))
 
-            Column(Modifier.weight(1f)) {
-                Text(
-                    cartItem.product.name,
-                    fontFamily = Marcellus,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                    color = DeepBark,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    "${"%.2f".format(cartItem.product.price)} RSD",
-                    color = DeepBark,
-                    fontWeight = FontWeight.SemiBold, fontFamily = Marcellus, fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onDecreaseQuantity()
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        cartItem.product.name,
+                        fontFamily = Marcellus,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                        color = DeepBark,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Size ${cartItem.selectedSize}",
+                        fontFamily = Marcellus,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                        color = DeepBark
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "${"%.2f".format(cartItem.product.price)} RSD",
+                        color = DeepBark,
+                        fontWeight = FontWeight.SemiBold, fontFamily = Marcellus, fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onDecreaseQuantity()
+                            }
+                        ) {
+                            Text(
+                                "-",
+                                fontWeight = FontWeight.Bold,
+                                color = DeepBark,
+                                fontFamily = Marcellus
+                            )
                         }
-                    ) {
-                        Text(
-                            "-",
-                            fontWeight = FontWeight.Bold,
-                            color = DeepBark,
-                            fontFamily = Marcellus
-                        )
-                    }
-                    Text("${cartItem.quantity}", Modifier, color = DeepBark, fontFamily = Marcellus)
-                    IconButton(onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onIncreaseQuantity()
-                    }
-                    ) {
-                        Text(
-                            "+",
-                            fontWeight = FontWeight.Bold,
-                            color = DeepBark,
-                            fontFamily = Marcellus
-                        )
+                        Text("${cartItem.quantity}", Modifier, color = DeepBark, fontFamily = Marcellus)
+                        IconButton(onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onIncreaseQuantity()
+                        }
+                        ) {
+                            Text(
+                                "+",
+                                fontWeight = FontWeight.Bold,
+                                color = DeepBark,
+                                fontFamily = Marcellus
+                            )
+                        }
                     }
                 }
             }
         }
-    }
+
+
+
 }
 
 @Composable
@@ -370,6 +429,14 @@ private fun CustomDialog(
         ) {
             Column(Modifier.padding(24.dp)) {
                 TextField(value = value, onValueChange = onValueChange, label = { Text("Name") })
+                Spacer (modifier = Modifier.height(8.dp))
+                TextField(value = value, onValueChange = onValueChange, label = { Text("Street") })
+                Spacer (modifier = Modifier.height(8.dp))
+                TextField(value = value, onValueChange = onValueChange, label = { Text("City & Postal code") })
+                Spacer (modifier = Modifier.height(8.dp))
+                TextField(value = value, onValueChange = onValueChange, label = { Text("Country") })
+                Spacer (modifier = Modifier.height(8.dp))
+                TextField(value = value, onValueChange = onValueChange, label = { Text("Phone number") })
             }
 
         }
@@ -490,9 +557,11 @@ private fun CartFooter(total: Double, onCheckout: () -> Unit) {
         }
     }
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(12.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -540,10 +609,13 @@ private fun CartFooter(total: Double, onCheckout: () -> Unit) {
                                     // Computers do not understand standard 360-degree circles inside trig functions, they expect angles in Radians (where 180-degrees = Pi)
                                     val rad = Math.toRadians(angleDeg)
                                     // Start particle spawn at radius; climb to maxSparkBurstDistance
-                                    val totalSparkBurstDistance = (buttonRadius) + (p * maxSparkBurstDistance)
+                                    val totalSparkBurstDistance =
+                                        (buttonRadius) + (p * maxSparkBurstDistance)
 
-                                    val cx = buttonCenter.x + (cos(rad) * totalSparkBurstDistance).toFloat()
-                                    val cy = buttonCenter.y + (sin(rad) * totalSparkBurstDistance).toFloat()
+                                    val cx =
+                                        buttonCenter.x + (cos(rad) * totalSparkBurstDistance).toFloat()
+                                    val cy =
+                                        buttonCenter.y + (sin(rad) * totalSparkBurstDistance).toFloat()
 
                                     val rayLen =
                                         5.dp.toPx() * appearProgress * (1f - fadeProgress * 0.2f)

@@ -24,7 +24,7 @@ class RoomCartRepository(db: AppDatabase) : CartRepository {
     }
 
     override suspend fun removeItem(item: CartItem) {
-        cartDao.deleteById(item.product.id)
+        cartDao.deleteByIdAndSize(item.product.id, item.selectedSize)
     }
 
     override suspend fun clearCart() {

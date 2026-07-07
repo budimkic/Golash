@@ -1,11 +1,10 @@
 package com.golash.app.data.db
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "cart_items")
+@Entity(tableName = "cart_items", primaryKeys = ["productId", "selectedSize"])
 data class CartItemEntity(
-    @PrimaryKey val productId: String,
+    val productId: String,
     val name: String,
     val price: Double,
     val productDescription: String,
@@ -19,7 +18,9 @@ data class CartItemEntity(
 
     val images: List<ProductImageEntity>,
     val selectedSize: String,
-    val quantity: Int
+    val quantity: Int,
+
+    val addedAt: Long
 )
 
 data class ProductImageEntity(

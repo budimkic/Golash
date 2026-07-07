@@ -24,7 +24,8 @@ fun CartItemEntity.toCartItem(): CartItem {
             images = images.map { it.toDomain() }
         ),
         selectedSize = selectedSize,
-        quantity = quantity
+        quantity = quantity,
+        addedAt = addedAt
     )
 }
 
@@ -44,7 +45,8 @@ fun CartItem.toEntity(): CartItemEntity {
 
         images = product.images.map { it.toEntity() },
         selectedSize = selectedSize,
-        quantity = quantity
+        quantity = quantity,
+        addedAt = addedAt
     )
 }
 
