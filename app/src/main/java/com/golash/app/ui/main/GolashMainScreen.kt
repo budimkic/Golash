@@ -16,64 +16,67 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.golash.app.manager.NavigationManager
 import com.golash.app.ui.navigation.AppNavHost
 import com.golash.app.ui.navigation.Destination
 import com.golash.app.ui.theme.DarkChestnut
+import com.golash.app.ui.theme.GolashTheme
 import com.golash.app.ui.theme.Marcellus
 import com.golash.app.ui.theme.Oak
 import com.golash.app.ui.theme.WarmSand
 
 
 @Composable
-fun GolashMainScreen(modifier: Modifier = Modifier) {
+fun GolashMainScreen(navigationManager: NavigationManager) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    Scaffold(
-        modifier = modifier, bottomBar = {
-            NavigationBar(
-                containerColor = WarmSand, windowInsets = NavigationBarDefaults.windowInsets
-            ) {
-                Destination.bottomNavDestinations.forEach { destination ->
-                    val isSelected = currentRoute == destination.route
+    GolashTheme {
+        Scaffold( bottomBar = {
+                NavigationBar(
+                    containerColor = WarmSand, windowInsets = NavigationBarDefaults.windowInsets
+                ) {
+                    Destination.bottomNavDestinations.forEach { destination ->
+                        val isSelected = currentRoute == destination.route
 
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = {
-                            if (!isSelected) {
-                                navController.navigate(route = destination.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+                        NavigationBarItem(
+                            selected = isSelected,
+                            onClick = {
+                                if (!isSelected) {
+                                    navController.navigate(route = destination.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
                                     }
-                                    launchSingleTop = true
                                 }
-                            }
-                        },
-                        icon = {
-                            destination.icon?.let { icon ->
-                                Icon(icon, contentDescription = destination.contentDescription)
-                            }
-                        },
-                        label = {
-                            destination.label?.let { label ->
-                                Text(label, fontFamily = Marcellus, fontWeight = FontWeight.Bold)
-                            }
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = DarkChestnut,
-                            unselectedIconColor = Oak,
-                            selectedTextColor = DarkChestnut,
-                            unselectedTextColor = Oak,
-                            indicatorColor = Color(0x99CBBF9D)
-                        ),
-                    )
+                            },
+                            icon = {
+                                destination.icon?.let { icon ->
+                                    Icon(icon, contentDescription = destination.contentDescription)
+                                }
+                            },
+                            label = {
+                                destination.label?.let { label ->
+                                    Text(label, fontFamily = Marcellus, fontWeight = FontWeight.Bold)
+                                }
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = DarkChestnut,
+                                unselectedIconColor = Oak,
+                                selectedTextColor = DarkChestnut,
+                                unselectedTextColor = Oak,
+                                indicatorColor = Color(0x99CBBF9D)
+                            ),
+                        )
+                    }
                 }
-            }
-        })
+            })
 
 
-    { contentPadding ->
-        AppNavHost(navController, Destination.HOME, modifier = Modifier.padding(contentPadding))
+        { contentPadding ->
+            AppNavHost(navController,navigationManager = navigationManager, Destination.HOME, modifier = Modifier.padding(contentPadding))
+        }
     }
 }

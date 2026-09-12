@@ -1,5 +1,8 @@
 package com.golash.app.domain.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class Cart(
     val items: List<CartItem>
 ) {
@@ -10,6 +13,7 @@ data class Cart(
         get() = items.sumOf { it.quantity }
 }
 
+@JsonClass(generateAdapter = true)
 data class CartItem(
     val product: Product,
     val selectedSize: String,

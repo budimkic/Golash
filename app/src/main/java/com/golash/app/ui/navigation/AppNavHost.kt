@@ -6,12 +6,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.golash.app.domain.model.Cart
+import com.golash.app.manager.NavigationManager
+import com.golash.app.manager.NavigationManager.NavIntent
 import com.golash.app.ui.screens.cart.CartScreen
 import com.golash.app.ui.screens.detail.DetailScreen
 import com.golash.app.ui.screens.gallery.GalleryScreen
@@ -21,9 +25,25 @@ import com.golash.app.ui.theme.Linen
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    navigationManager: NavigationManager,
     startDestination: Destination,
     modifier: Modifier = Modifier
 ) {
+
+    LaunchedEffect(Unit) {
+        navigationManager.navEvent.collect { intent ->
+            when (intent) {
+                is NavIntent.NavigateTo -> {
+                    navController.navigate(intent.route)
+                }
+
+                is NavIntent.NavigateBack -> {
+                    navController.popBackStack()
+                }
+            }
+        }
+
+    }
 
     NavHost(
         navController = navController,

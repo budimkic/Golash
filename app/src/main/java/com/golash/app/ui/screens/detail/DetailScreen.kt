@@ -568,7 +568,7 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
                 )
             } else if (product.images[page].type?.name == "REMOTE") {
                 AsyncImage(
-                    model = product.images[page],
+                    model = product.images[page].url,
                     contentDescription = "Product image",
                     modifier = Modifier
                         .fillMaxWidth()

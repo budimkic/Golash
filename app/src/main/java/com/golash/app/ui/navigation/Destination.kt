@@ -29,6 +29,10 @@ sealed class Destination(
         "product_detail/{productId}", productId = "productId"
     )
 
+    data object CHECKOUT : Destination(
+        route = "checkout"
+    )
+
     companion object {
         val bottomNavDestinations: List<Destination> = listOf(HOME, GALLERY, CART)
     }

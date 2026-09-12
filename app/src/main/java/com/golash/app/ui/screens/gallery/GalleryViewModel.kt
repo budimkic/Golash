@@ -2,6 +2,7 @@ package com.golash.app.ui.screens.gallery
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.golash.app.data.repository.FirestoreProductRepository
 import com.golash.app.domain.model.Product
 import com.golash.app.data.repository.product.MockProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,7 @@ sealed class GalleryState {
 }
 
 @HiltViewModel
-class GalleryViewModel @Inject constructor(private val repository: MockProductRepository) :
+class GalleryViewModel @Inject constructor(private val repository: FirestoreProductRepository) :
     ViewModel() {
 
     private val _uiState = MutableStateFlow<GalleryState>(GalleryState.Loading)

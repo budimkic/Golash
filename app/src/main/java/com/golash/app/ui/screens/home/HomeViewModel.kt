@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.golash.app.domain.model.Product
 import com.golash.app.data.repository.product.MockProductRepository
+import com.golash.app.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,7 @@ sealed class HomeUiState {
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: MockProductRepository
+    private val repository: ProductRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)

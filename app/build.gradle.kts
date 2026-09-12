@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -52,6 +53,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.text)
     kapt(libs.hilt.android.compiler)
     
     // Hilt Navigation Compose
@@ -108,6 +110,10 @@ dependencies {
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.moshi)
+
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
 
     // Core Library Desugaring for Java 8+ APIs on older Android versions
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")

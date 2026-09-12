@@ -1,5 +1,8 @@
 package com.golash.app.domain.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class Product(
     val id: String,
     val name: String,
@@ -11,12 +14,14 @@ data class Product(
     val primaryImage: ProductImage? get() = images.firstOrNull()
 }
 
+@JsonClass(generateAdapter = true)
 data class ProductDetails(
     val sizes: List<String>,
     val careInstructions: String,
     val materials: String
 )
 
+@JsonClass(generateAdapter = true)
 data class ProductImage(
     val url: String,
     val type: ImageType = ImageType.REMOTE
