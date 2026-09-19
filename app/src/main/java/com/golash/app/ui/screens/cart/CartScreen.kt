@@ -157,10 +157,12 @@ fun CartScreen(cartViewModel: CartViewModel = hiltViewModel()) {
     val cartState by cartViewModel.cartState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val errorMessage = stringResource(R.string.whoops_try_again)
+
     LaunchedEffect(Unit) {
         cartViewModel.cartActionErrorState.collect { errorState ->
             if (errorState is CartState.CartActionError) {
-                snackbarHostState.showSnackbar("Whoops, try again!")
+                snackbarHostState.showSnackbar(errorMessage)
             }
         }
     }
@@ -183,13 +185,12 @@ private fun CartContent(
     onAction: (Action) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        cartViewModel.submitOrderEvent.collect { message ->
-            Log.d("CartScreen", "Collected message: $message")
+        cartViewModel.submitOrderEvent.collect { uiText ->
             showDialog = false
-            snackbarHostState.showSnackbar(message)
+            snackbarHostState.showSnackbar(uiText.asString(context))
         }
     }
 
@@ -221,7 +222,7 @@ private fun CartContent(
                     fadeIn(animationSpec = tween(1000, easing = EaseInOut)) togetherWith
                             fadeOut(animationSpec = tween(400, easing = EaseInOut))
                 },
-                label = "cart_phase_animation",
+                label = stringResource(R.string.cart_phase_animation),
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Linen)
@@ -452,7 +453,7 @@ private fun CartItemRow(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Size ${cartItem.selectedSize}",
+                    text = stringResource(R.string.cart_size, cartItem.selectedSize),
                     fontFamily = Marcellus,
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize,
@@ -460,7 +461,10 @@ private fun CartItemRow(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "${"%.2f".format(cartItem.product.price)} RSD",
+                    stringResource(
+                        R.string.rsd,
+                        stringResource(R.string._2f).format(cartItem.product.price)
+                    ),
                     color = DeepBark,
                     fontWeight = FontWeight.SemiBold, fontFamily = Marcellus, fontSize = 16.sp
                 )
@@ -473,7 +477,7 @@ private fun CartItemRow(
                         }
                     ) {
                         Text(
-                            "-",
+                            stringResource(R.string.dash),
                             fontWeight = FontWeight.Bold,
                             color = DeepBark,
                             fontFamily = Marcellus
@@ -578,14 +582,15 @@ private fun CustomDialog(
                     value = shippingInfo.name,
                     onValueChange = { onAction(Action.OnNameChanged(it)) },
                     label = {
-                        if (shippingInfo.errors?.nameError != null) {
+                        val nameErrorRes = shippingInfo.errors?.nameError
+                        if (nameErrorRes != null) {
                             Text(
-                                text = shippingInfo.errors.nameError!!,
+                                text = stringResource(nameErrorRes),
                                 color = AbrasiveRed, // Uses your custom error color
                                 fontSize = 12.sp
                             )
                         } else {
-                            Text("Name")
+                            Text(stringResource(R.string.name))
                         }
                     },
                     isError = shippingInfo.errors?.nameError != null,
@@ -605,14 +610,15 @@ private fun CustomDialog(
                     value = shippingInfo.email,
                     onValueChange = { onAction(Action.OnEmailChanged(it)) },
                     label = {
-                        if (shippingInfo.errors?.emailError != null) {
+                        val emailErrorRes = shippingInfo.errors?.emailError
+                        if (emailErrorRes != null) {
                             Text(
-                                text = shippingInfo.errors.emailError!!,
+                                text = stringResource(emailErrorRes),
                                 color = AbrasiveRed,
                                 fontSize = 12.sp
                             )
                         } else {
-                            Text("E-mail")
+                            Text(stringResource(R.string.e_mail))
                         }
                     },
                     isError = shippingInfo.errors?.emailError != null,
@@ -634,14 +640,15 @@ private fun CustomDialog(
                     value = shippingInfo.phoneNumber,
                     onValueChange = { onAction(Action.OnPhoneChanged(it)) },
                     label = {
-                        if (shippingInfo.errors?.phoneError != null) {
+                        val phoneErrorRes = shippingInfo.errors?.phoneError
+                        if (phoneErrorRes != null) {
                             Text(
-                                text = shippingInfo.errors.phoneError!!,
+                                text = stringResource(phoneErrorRes),
                                 color = AbrasiveRed,
                                 fontSize = 12.sp
                             )
                         } else {
-                            Text("Phone number")
+                            Text(stringResource(R.string.phone_number))
                         }
                     },
                     isError = shippingInfo.errors?.phoneError != null,
@@ -663,14 +670,15 @@ private fun CustomDialog(
                     value = shippingInfo.address,
                     onValueChange = { onAction(Action.OnAddressChanged(it)) },
                     label = {
-                        if (shippingInfo.errors?.addressError != null) {
+                        val addressErrorRes = shippingInfo.errors?.addressError
+                        if (addressErrorRes != null) {
                             Text(
-                                text = shippingInfo.errors.addressError!!,
+                                text = stringResource(addressErrorRes),
                                 color = AbrasiveRed,
                                 fontSize = 12.sp
                             )
                         } else {
-                            Text("Address")
+                            Text(stringResource(R.string.address))
                         }
                     },
                     isError = shippingInfo.errors?.addressError != null,
@@ -689,14 +697,15 @@ private fun CustomDialog(
                     value = shippingInfo.city,
                     onValueChange = { onAction(Action.OnCityChanged(it)) },
                     label = {
-                        if (shippingInfo.errors?.cityError != null) {
+                        val cityErrorRes = shippingInfo.errors?.cityError
+                        if (cityErrorRes != null) {
                             Text(
-                                text = shippingInfo.errors.cityError!!,
+                                text = stringResource(cityErrorRes),
                                 color = AbrasiveRed,
                                 fontSize = 12.sp
                             )
                         } else {
-                            Text("City")
+                            Text(stringResource(R.string.city))
                         }
                     },
                     isError = shippingInfo.errors?.cityError != null,
@@ -715,14 +724,15 @@ private fun CustomDialog(
                     value = shippingInfo.postCode,
                     onValueChange = { onAction(Action.OnPostCodeChanged(it)) },
                     label = {
-                        if (shippingInfo.errors?.postCodeError != null) {
+                        val postCodeErrorRes = shippingInfo.errors?.postCodeError
+                        if (postCodeErrorRes != null) {
                             Text(
-                                text = shippingInfo.errors.postCodeError!!,
+                                text = stringResource(postCodeErrorRes),
                                 color = AbrasiveRed,
                                 fontSize = 12.sp
                             )
                         } else {
-                            Text("Post code")
+                            Text(stringResource(R.string.post_code))
                         }
                     },
                     isError = shippingInfo.errors?.postCodeError != null,
@@ -745,14 +755,15 @@ private fun CustomDialog(
                     value = shippingInfo.country,
                     onValueChange = { onAction(Action.OnCountryChanged(it)) },
                     label = {
-                        if (shippingInfo.errors?.countryError != null) {
+                        val countryErrorRes = shippingInfo.errors?.countryError
+                        if (countryErrorRes != null) {
                             Text(
-                                text = shippingInfo.errors.countryError!!,
+                                text = stringResource(countryErrorRes),
                                 color = AbrasiveRed,
                                 fontSize = 12.sp
                             )
                         } else {
-                            Text("Country")
+                            Text(stringResource(R.string.country))
                         }
                     },
                     isError = shippingInfo.errors?.countryError != null,
@@ -986,7 +997,7 @@ private fun CartFooter(total: Double, onCheckout: () -> Unit) {
         ) {
 
             Text(
-                text = "Total: ${"%.2f".format(total)} RSD",
+                text = stringResource(R.string.total_rsd, stringResource(R.string._2f).format(total)),
                 style = MaterialTheme.typography.titleLarge.copy(brush = whooshBrush),
                 fontWeight = FontWeight.Bold,
                 fontFamily = Marcellus,

@@ -14,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,15 +45,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarData
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,7 +95,6 @@ import coil.compose.AsyncImage
 import com.golash.app.R
 import com.golash.app.domain.model.Product
 import com.golash.app.ui.components.AnimatedErrorState
-import com.golash.app.ui.screens.cart.CartViewModel
 import com.golash.app.ui.theme.CrimsonText
 import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
@@ -126,16 +121,18 @@ fun DetailScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val addedToCartMessage = stringResource(R.string.added_to_cart)
+    val errorTryAgainMessage = stringResource(R.string.whoops_try_again)
+
     LaunchedEffect(addToCartResult) {
         addToCartResult?.let { result ->
             when (result) {
                 is AddToCartResult.Success -> {
-                    snackbarHostState.showSnackbar("Added to cart! :)")
+                    snackbarHostState.showSnackbar(addedToCartMessage)
                 }
 
                 is AddToCartResult.Error -> {
-                    Log.e("DetailScreen", result.message)
-                    snackbarHostState.showSnackbar("Whoops, try again!")
+                    snackbarHostState.showSnackbar(errorTryAgainMessage)
                 }
 
                 else -> {}
@@ -259,7 +256,7 @@ private fun DetailContent(
 
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Show full shortDescription",
+                        contentDescription = stringResource(R.string.show_full_shortdescription),
                         tint = DarkChestnut,
                         modifier = Modifier
                             .size(24.dp)
@@ -353,7 +350,7 @@ private fun CartFooter(
                 modifier = Modifier.padding(
                     10.dp
                 ),
-                text = "${product.price.toInt()} RSD",
+                text = stringResource(R.string.price_rsd, product.price.toInt()),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Ivory,
@@ -388,9 +385,8 @@ private fun CartFooter(
                         scope.launch { pulseScale.animateTo(1f, tween(300)) }
 
                         if (up != null && !longPressed) {
-                            val size = selectedSize
-                            if (size != null) {
-                                onAddToCart(size)
+                            if (selectedSize != null) {
+                                onAddToCart(selectedSize)
                             } else {
                                 onRequireSize()
                             }
@@ -403,7 +399,7 @@ private fun CartFooter(
         ) {
             if (showCurvedText) {
                 CurvedText(
-                    text = "ADD TO CART",
+                    text = stringResource(R.string.add_to_cart).uppercase(),
                     buttonRadius = 24f,
                     alpha = 1f,
                     modifier = Modifier.size(90.dp)
@@ -412,7 +408,7 @@ private fun CartFooter(
 
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add to cart",
+                contentDescription = stringResource(R.string.add_to_cart),
                 tint = Ivory,
                 modifier = Modifier.size(24.dp)
             )
@@ -551,25 +547,25 @@ private fun PagerImageItem(product: Product, pagerState: PagerState, page: Int) 
                 .background(Linen),
             contentAlignment = Alignment.Center
         ) {
-            if (product.images[page].type?.name == "RESOURCE") {
+            if (product.images[page].type.name == "RESOURCE") {
                 val resourceId = product.images[page].url?.toIntOrNull()
                 resourceId?.let { id ->
                     Image(
                         painterResource(id = id),
-                        contentDescription = "Product image",
+                        contentDescription = stringResource(R.string.product_image),
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f),
                         contentScale = ContentScale.Fit
                     )
                 } ?: Log.e(
-                    "RotatingProductCard",
+                    TAG_ROTATING_CARD,
                     "Invalid resource ID for product image"
                 )
-            } else if (product.images[page].type?.name == "REMOTE") {
+            } else if (product.images[page].type.name == "REMOTE") {
                 AsyncImage(
                     model = product.images[page].url,
-                    contentDescription = "Product image",
+                    contentDescription = stringResource(R.string.product_image),
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
@@ -655,7 +651,7 @@ private fun CustomDialog(
 
                 Row {
                     Text(
-                        text = "Materials: ",
+                        text = stringResource(R.string.materials),
                         style = MaterialTheme.typography.bodyLarge,
                         color = DeepBark.copy(alpha = 0.9f),
                         fontFamily = CrimsonText,
@@ -676,7 +672,7 @@ private fun CustomDialog(
 
                 Row {
                     Text(
-                        text = "Care: ",
+                        text = stringResource(R.string.care),
                         style = MaterialTheme.typography.bodyLarge,
                         color = DeepBark.copy(alpha = 0.9f),
                         fontFamily = CrimsonText,
@@ -700,7 +696,7 @@ private fun CustomDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Size:",
+                        text = stringResource(R.string.size),
                         style = MaterialTheme.typography.bodyLarge,
                         color = DeepBark.copy(alpha = 0.9f),
                         fontFamily = CrimsonText,
@@ -729,7 +725,7 @@ private fun CustomDialog(
 
                 if (selectedSize == null) {
                     Text(
-                        text = "Please select a size",
+                        text = stringResource(R.string.please_select_a_size),
                         color = DarkChestnut,
                         fontFamily = CrimsonText,
                         fontSize = 14.sp,
@@ -822,3 +818,5 @@ private fun VineDivider(
           )*/
     }
 }
+
+private const val TAG_ROTATING_CARD = "RotatingProductCard"

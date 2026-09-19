@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("HardcodedStringLiteral")
 @Singleton
 class MockProductRepository @Inject constructor() : ProductRepository {
 

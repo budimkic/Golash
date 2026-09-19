@@ -19,21 +19,21 @@ class FirestoreProductRepository @Inject constructor() : ProductRepository {
 
     override suspend fun getProducts(): List<Product> {
         return try {
-            val result = db.collection("products").get().await()
-            Log.d("FirestoreDebug", "Successfully fetched ${result.size()} documents")
+            val result = db.collection(COLLECTION_PRODUCTS).get().await()
+            Log.d(TAG, "Successfully fetched ${result.size()} documents")
             result.documents.map { document ->
-                val detailsMap = document.get("details") as? Map<*, *>
+                val detailsMap = document.get(FIELD_DETAILS) as? Map<*, *>
                 val productDetails = ProductDetails(
-                    sizes = (detailsMap?.get("sizes") as? List<*>)?.mapNotNull { it.toString() } ?: emptyList(),
-                    careInstructions = detailsMap?.get("careInstructions") as? String ?: "",
-                    materials = detailsMap?.get("materials") as? String ?: ""
+                    sizes = (detailsMap?.get(FIELD_SIZES) as? List<*>)?.mapNotNull { it.toString() } ?: emptyList(),
+                    careInstructions = detailsMap?.get(FIELD_CARE_INSTRUCTIONS) as? String ?: "",
+                    materials = detailsMap?.get(FIELD_MATERIALS) as? String ?: ""
                 )
 
-                val imagesList = document.get("images") as? List<*>
+                val imagesList = document.get(FIELD_IMAGES) as? List<*>
                 val productImages = imagesList?.mapNotNull { imageObj ->
                     val imageMap = imageObj as? Map<*, *>
-                    val url = imageMap?.get("url") as? String ?: ""
-                    val typeStr = imageMap?.get("type") as? String ?: "REMOTE"
+                    val url = imageMap?.get(FIELD_URL) as? String ?: ""
+                    val typeStr = imageMap?.get(FIELD_TYPE) as? String ?: DEFAULT_IMAGE_TYPE
                     val imageType = try {
                         ProductImage.ImageType.valueOf(typeStr)
                     } catch (e: Exception) {
@@ -44,36 +44,36 @@ class FirestoreProductRepository @Inject constructor() : ProductRepository {
 
                 Product(
                     id = document.id,
-                    name = document.getString("name") ?: "",
-                    shortDescription = document.getString("shortDescription") ?: "",
+                    name = document.getString(FIELD_NAME) ?: "",
+                    shortDescription = document.getString(FIELD_SHORT_DESCRIPTION) ?: "",
                     details = productDetails,
-                    price = document.getDouble("price") ?: 0.0,
+                    price = document.getDouble(FIELD_PRICE) ?: 0.0,
                     images = productImages
                 )
             }
         } catch (e: Exception) {
-            android.util.Log.e("FirestoreDebug", "Error fetching products", e)
+            Log.e(TAG, "Error fetching products", e)
             emptyList()
         }
     }
 
     override suspend fun getProductById(productId: String): Product? {
         return try {
-            val document = db.collection("products").document(productId).get().await()
+            val document = db.collection(COLLECTION_PRODUCTS).document(productId).get().await()
             if (!document.exists()) return null
 
-            val detailsMap = document.get("details") as? Map<*, *>
+            val detailsMap = document.get(FIELD_DETAILS) as? Map<*, *>
             val productDetails = ProductDetails(
-                sizes = (detailsMap?.get("sizes") as? List<*>)?.mapNotNull { it.toString() } ?: emptyList(),
-                careInstructions = detailsMap?.get("careInstructions") as? String ?: "",
-                materials = detailsMap?.get("materials") as? String ?: ""
+                sizes = (detailsMap?.get(FIELD_SIZES) as? List<*>)?.mapNotNull { it.toString() } ?: emptyList(),
+                careInstructions = detailsMap?.get(FIELD_CARE_INSTRUCTIONS) as? String ?: "",
+                materials = detailsMap?.get(FIELD_MATERIALS) as? String ?: ""
             )
 
-            val imagesList = document.get("images") as? List<*>
+            val imagesList = document.get(FIELD_IMAGES) as? List<*>
             val productImages = imagesList?.mapNotNull { imageObj ->
                 val imageMap = imageObj as? Map<*, *>
-                val url = imageMap?.get("url") as? String ?: ""
-                val typeStr = imageMap?.get("type") as? String ?: "REMOTE"
+                val url = imageMap?.get(FIELD_URL) as? String ?: ""
+                val typeStr = imageMap?.get(FIELD_TYPE) as? String ?: DEFAULT_IMAGE_TYPE
                 val imageType = try {
                     ProductImage.ImageType.valueOf(typeStr)
                 } catch (e: Exception) {
@@ -84,14 +84,32 @@ class FirestoreProductRepository @Inject constructor() : ProductRepository {
 
             Product(
                 id = document.id,
-                name = document.getString("name") ?: "",
-                shortDescription = document.getString("shortDescription") ?: "",
+                name = document.getString(FIELD_NAME) ?: "",
+                shortDescription = document.getString(FIELD_SHORT_DESCRIPTION) ?: "",
                 details = productDetails,
-                price = document.getDouble("price") ?: 0.0,
+                price = document.getDouble(FIELD_PRICE) ?: 0.0,
                 images = productImages
             )
         } catch (e: Exception) {
             null
         }
+    }
+
+    companion object {
+        private const val TAG = "FirestoreDebug"
+
+        // Firestore Collections & Fields
+        private const val COLLECTION_PRODUCTS = "products"
+        private const val FIELD_DETAILS = "details"
+        private const val FIELD_SIZES = "sizes"
+        private const val FIELD_CARE_INSTRUCTIONS = "careInstructions"
+        private const val FIELD_MATERIALS = "materials"
+        private const val FIELD_IMAGES = "images"
+        private const val FIELD_URL = "url"
+        private const val FIELD_TYPE = "type"
+        private const val FIELD_NAME = "name"
+        private const val FIELD_SHORT_DESCRIPTION = "shortDescription"
+        private const val FIELD_PRICE = "price"
+        private const val DEFAULT_IMAGE_TYPE = "REMOTE"
     }
 }

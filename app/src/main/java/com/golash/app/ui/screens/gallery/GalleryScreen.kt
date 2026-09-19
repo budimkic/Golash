@@ -173,8 +173,8 @@ private fun GalleryProductGrid(state: GalleryState, onProductClick: (String) -> 
                         ),
                         colors = CardDefaults.cardColors(containerColor = WarmSand)
                     ) {
-
-                        if (product.primaryImage?.type?.name == stringResource(R.string.resource)) {
+                        val imageType = product.primaryImage?.type
+                        if (imageType?.name == "RESOURCE") {
                             val resourceId = product.primaryImage?.url?.toIntOrNull()
                             resourceId?.let { id ->
                                 Image(
@@ -184,12 +184,10 @@ private fun GalleryProductGrid(state: GalleryState, onProductClick: (String) -> 
                                     contentScale = ContentScale.Fit
                                 )
                             } ?: Log.e(
-                                "RotatingProductCard",
-                                stringResource(R.string.error_invalid_resource)
+                                TAG_ROTATING_CARD,
+                                "Invalid resource ID for product image"
                             )
-                        } else if (product.primaryImage?.type?.name == stringResource(
-                                R.string.remote
-                            )
+                        } else if (imageType?.name == "REMOTE"
                         ) {
                             AsyncImage(
                                 model = product.primaryImage?.url,
@@ -218,3 +216,5 @@ private fun GalleryProductGrid(state: GalleryState, onProductClick: (String) -> 
         }
     }
 }
+
+private const val TAG_ROTATING_CARD = "RotatingProductCard"

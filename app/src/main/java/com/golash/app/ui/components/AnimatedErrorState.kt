@@ -25,10 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.golash.app.R
 import com.golash.app.ui.theme.DarkChestnut
 import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.Marcellus
@@ -36,14 +38,14 @@ import com.golash.app.ui.theme.WarmSand
 
 @Composable
 fun AnimatedErrorState() {
-    val infiniteTransition = rememberInfiniteTransition(label = "errorPulse")
+    val infiniteTransition = rememberInfiniteTransition(label = stringResource(R.string.errorpulse))
     val scale by infiniteTransition.animateFloat(
         initialValue = 0.95f,
         targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = LinearOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = "scale"
+        ), label = stringResource(R.string.scale)
     )
 
     Column(
@@ -72,7 +74,7 @@ fun AnimatedErrorState() {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Whoops, something went wrong! Please contact us.",
+            text = stringResource(R.string.something_went_wrong),
             color = DeepBark,
             fontSize = 18.sp,
             fontFamily = Marcellus,

@@ -4,7 +4,6 @@
     <string name="close">Close</string>
     <string name="description">Description</string>
     <string name="almost_there">Almost there!</string>
-    <string name="size">Size:</string>
     <string name="retry">Retry</string>
     <string name="checkout">Checkout</string>
     <string name="resource">RESOURCE</string>
@@ -14,9 +13,58 @@
     // Error messages
     <string name="error_invalid_resource">Invalid resource ID for product image</string>
     <string name="default_error_msg">Something went wrong</string>
-    <string name="unknown_error">Unknown error</string>
+    <string name="unknown_error">Unknown Error</string>
 
     <string name="fill_your_cart">Fill your cart with goodies</string>
+    <string name="scale">scale</string>
+    <string name="errorpulse">errorPulse</string>
+    <string name="something_went_wrong">Whoops, something went wrong! Please contact us.</string>
+    <string name="app_database">app_database</string>
+    <string name="whoops_try_again">Whoops, try again!</string>
+    <string name="cart_phase_animation">cart_phase_animation</string>
+    <string name="cart_size">Size %1$s</string>
+    <string name="_2f">%.2f</string>
+    <string name="rsd">%1$s RSD</string>
+    <string name="dash">-</string>
+    <string name="name">Name</string>
+    <string name="e_mail">E-mail</string>
+    <string name="phone_number">Phone number</string>
+    <string name="address">Address</string>
+    <string name="city">City</string>
+    <string name="post_code">Post code</string>
+    <string name="country">Country</string>
+    <string name="total_rsd">Total: %1$s RSD</string>
+    <string name="name_is_required">Name is required</string>
+    <string name="e_mail_is_required">E-mail is required</string>
+    <string name="phone_number_is_required">Phone number is required</string>
+    <string name="address_is_required">Address is required</string>
+    <string name="city_is_required">City is required\n</string>
+    <string name="post_code_is_required">Post code is required</string>
+    <string name="country_is_required">Country is required</string>
+    <string name="order_placed_successfully">Order placed successfully!</string>
+    <string name="network_error">Network error</string>
+    <string name="invalid_request">Invalid Request</string>
+    <string name="go_to_home_screen">Go to Home Screen</string>
+    <string name="home">Home</string>
+    <string name="visit_the_gallery">Visit the Gallery</string>
+    <string name="gallery">Gallery</string>
+    <string name="check_your_cart">Check your Cart</string>
+    <string name="cart">Cart</string>
+    <string name="added_to_cart">Added to cart! :)</string>
+    <string name="show_full_shortdescription">Show full shortDescription</string>
+    <string name="price_rsd">RSD</string>
+    <string name="materials">"Materials: "</string>
+    <string name="care">"Care: "</string>
+    <string name="size">Size: </string>
+    <string name="please_select_a_size">Please select a size</string>
+    <string name="product_not_found">Product not found</string>
+
+    <string name="home_quote">Plant a tree today, its shade will outlive you.</string>
+    <string name="desc_oak_tree_loading">Oak Tree Loader</string>
+
+    <string name="loading">Loading</string>
+
+
 
 
 </resources>

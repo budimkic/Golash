@@ -26,7 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,7 +44,6 @@ import com.golash.app.ui.theme.DeepBark
 import com.golash.app.ui.theme.Linen
 import kotlinx.coroutines.delay
 
-
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -52,12 +53,16 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val retryLabel = stringResource(R.string.retry)
+
+    val context = LocalContext.current
+
     LaunchedEffect(uiState) {
         if (uiState is HomeUiState.Error) {
-            val errorMessage = (uiState as HomeUiState.Error).message
+            val errorMessage = (uiState as HomeUiState.Error).message.asString(context)
             snackbarHostState.showSnackbar(
                 message = errorMessage,
-                actionLabel = "Retry"
+                actionLabel = retryLabel
             )
                 .let { result ->
                     if (result == SnackbarResult.ActionPerformed) {
@@ -134,7 +139,8 @@ private fun HomeContent(
                     animationSpec = tween(700)
                 )
                 Text(
-                    text = "Plant a tree today, its shade will outlive you.",
+                    //TODO Move quote to firestore?
+                    text = stringResource(R.string.home_quote),
                     fontFamily = CormorantGaramondItalic,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,

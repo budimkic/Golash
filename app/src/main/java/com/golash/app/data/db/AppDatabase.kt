@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.golash.app.R
 
 @Database(entities = [CartItemEntity::class], version = 6)
 @TypeConverters(Converters::class)
@@ -20,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
                     INSTANCE ?: Room.databaseBuilder(
                                         context.applicationContext,
                                         AppDatabase::class.java,
-                                        "app_database"
+                        context.getString(R.string.app_database)
                                     ).fallbackToDestructiveMigration(true)
                         .build().also { INSTANCE = it }
                 }

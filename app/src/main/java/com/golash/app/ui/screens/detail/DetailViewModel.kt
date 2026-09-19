@@ -3,10 +3,12 @@ package com.golash.app.ui.screens.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.golash.app.R
 import com.golash.app.domain.model.Product
 import com.golash.app.domain.repository.ProductRepository
 import com.golash.app.manager.CartManager
 import com.golash.app.ui.screens.detail.Action
+import com.golash.app.ui.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,13 +28,13 @@ import javax.inject.Inject
 sealed class DetailUiState {
     data object Loading : DetailUiState()
     data class Success(val product: Product) : DetailUiState()
-    data class Error(val message: String) : DetailUiState()
+    data class Error(val message: UiText) : DetailUiState()
 }
 
 sealed class AddToCartResult {
     data object Loading : AddToCartResult()
     data object Success : AddToCartResult()
-    data class Error(val message: String) : AddToCartResult()
+    data class Error(val message: UiText) : AddToCartResult()
 }
 
 sealed interface Action {
@@ -44,10 +46,9 @@ class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val productRepository: ProductRepository,
     private val cartManager: CartManager
-
 ) : ViewModel() {
 
-    private val productIdFlow = savedStateHandle.getStateFlow<String?>(key = "productId", initialValue = null)
+    private val productIdFlow = savedStateHandle.getStateFlow<String?>(key = KEY_PRODUCT_ID, initialValue = null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<DetailUiState> = productIdFlow
@@ -60,10 +61,12 @@ class DetailViewModel @Inject constructor(
                     if (product != null) {
                         emit(DetailUiState.Success(product))
                     } else {
-                        emit(DetailUiState.Error("Product not found"))
+                        emit(DetailUiState.Error(UiText.StringResource(R.string.product_not_found)))
                     }
                 } catch (e: Exception) {
-                    emit(DetailUiState.Error(e.message ?: "Unknown error occurred"))
+                    val errorMessage = e.localizedMessage?.let { UiText.DynamicString(it) }
+                        ?: UiText.StringResource(R.string.default_error_msg)
+                    emit(DetailUiState.Error(errorMessage))
                 }
             }
         }
@@ -89,8 +92,12 @@ class DetailViewModel @Inject constructor(
                 cartManager.addItem(product, selectedSize)
                 _addToCartResult.emit(AddToCartResult.Success)
             } catch (e: Exception) {
-                _addToCartResult.emit(AddToCartResult.Error(e.message ?: "Unknown error"))
+                val errorMessage = e.localizedMessage?.let { UiText.DynamicString(it)}
+                    ?: UiText.StringResource(R.string.whoops_try_again)
+                _addToCartResult.emit(AddToCartResult.Error(errorMessage))
             }
         }
     }
 }
+
+private const val KEY_PRODUCT_ID = "productId"

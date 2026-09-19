@@ -30,10 +30,15 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.golash.app.R
 import com.golash.app.ui.theme.CanopyDark
 import com.golash.app.ui.theme.CanopyMid
 import com.golash.app.ui.theme.LeafOrange
@@ -84,9 +89,12 @@ fun OakTreeLoader(modifier: Modifier = Modifier) {
             ".".repeat(floor(dotPhase).toInt().coerceIn(0, 3))
         }
     }
+    val loadingDescription = stringResource(R.string.desc_oak_tree_loading)
 
     Column(
-        modifier = modifier,
+        modifier = modifier.semantics {
+            contentDescription = loadingDescription
+        },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -107,7 +115,7 @@ fun OakTreeLoader(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Loading",
+                text = stringResource(R.string.loading),
                 color = TextEarth,
                 fontSize = 16.sp,
                 style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))

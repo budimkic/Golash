@@ -3,6 +3,7 @@ package com.golash.app.data.model
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+@Suppress("HardcodedStringLiteral")
 @JsonClass(generateAdapter = true)
 data class ProductResponse(
     @field:Json(name = "id") val id: String,
@@ -13,6 +14,7 @@ data class ProductResponse(
     @field:Json(name = "images") val images: List<ProductImageResponse>
 )
 
+@Suppress("HardcodedStringLiteral")
 @JsonClass(generateAdapter = true)
 data class ProductDetailsResponse(
     @field:Json(name = "size") val size: String,

@@ -2,9 +2,11 @@ package com.golash.app.ui.screens.gallery
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.golash.app.R
 import com.golash.app.data.repository.FirestoreProductRepository
 import com.golash.app.domain.model.Product
 import com.golash.app.data.repository.product.MockProductRepository
+import com.golash.app.ui.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -17,7 +19,7 @@ sealed class GalleryState {
     data object Idle : GalleryState()
     data object Loading : GalleryState()
     data class Success(val products: List<Product>) : GalleryState()
-    data class Error(val message: String) : GalleryState()
+    data class Error(val message: UiText) : GalleryState()
 }
 
 @HiltViewModel
@@ -39,7 +41,9 @@ class GalleryViewModel @Inject constructor(private val repository: FirestoreProd
                 val products = repository.getProducts()
                 _uiState.value = GalleryState.Success(products)
             } catch (e: Exception) {
-                _uiState.value = GalleryState.Error(e.message ?: "Unknown error occurred")
+                val errorMessage = e.localizedMessage?.let { UiText.DynamicString(it) }
+                    ?: UiText.StringResource(R.string.unknown_error)
+                _uiState.value = GalleryState.Error(errorMessage)
             }
         }
     }
